@@ -1,5 +1,30 @@
+import processing.core.*; 
+import processing.xml.*; 
 
-import tuio.*;
+import tuio.*; 
+
+import com.illposed.osc.utility.*; 
+import com.illposed.osc.*; 
+import tuio.*; 
+
+import java.applet.*; 
+import java.awt.Dimension; 
+import java.awt.Frame; 
+import java.awt.event.MouseEvent; 
+import java.awt.event.KeyEvent; 
+import java.awt.event.FocusEvent; 
+import java.awt.Image; 
+import java.io.*; 
+import java.net.*; 
+import java.text.*; 
+import java.util.*; 
+import java.util.zip.*; 
+import java.util.regex.*; 
+
+public class TuioDome extends PApplet {
+
+
+
 TuioClient tuioClient;
 
 float cursor_size = 10;
@@ -15,7 +40,7 @@ float da = PI/16;
 
 
 
-void setup()
+public void setup()
 {
   //size(screen.width,screen.height);
   size(screen.width, screen.height);
@@ -41,7 +66,7 @@ void setup()
 
 // within the draw method we retrieve an array of TuioObject and TuioCursor 
 // from the TuioClient and then loop over both lists to draw the graphical feedback.
-void draw()
+public void draw()
 {
   //background(0,10);
   if (random(100)<2) {
@@ -75,7 +100,7 @@ void draw()
   }
 
   for (int i=0;i<tuioCursorList.length;i++) {
-    color c1 = getColor(i);
+    int c1 = getColor(i);
     TuioCursor tcur = tuioCursorList[i];
     TuioPoint[] pointList = tcur.getPath();
     if (pointList.length>0) {
@@ -146,3 +171,100 @@ void draw()
   }
 }
 
+ArrayList colors = new ArrayList();
+
+public int getRandomColor() {
+  return color(random(200) + 55, random(200) + 55, random(200) + 55, 255);  
+}
+
+public int getColor(int i) {
+  while (colors.size() <= i)  {
+    colors.add(new Integer( getRandomColor() ));
+  }
+  
+  return (Integer) colors.get(i);
+}
+
+public void setColor(int i, int c) {
+  while (colors.size() <= i)  {
+    colors.add(new Integer( getRandomColor() ));
+  }
+  
+  colors.set(i,c);
+}
+
+
+public void randomizeColors() {
+  for (int i=0; i<colors.size(); i++) {
+    setColor(i, getRandomColor());
+  }  
+}
+
+
+boolean drawids = false;
+boolean drawpoints = false;
+boolean drawrings = true;
+
+public void keyPressed() {
+  if (key == ' ') {
+    background(0,0,49);
+  } else if (key == 'i') {
+    drawids = !drawids;
+  } else if (key == 'a') {
+    drawpoints = !drawpoints;
+  } else if (key == 'r') {
+    drawrings = !drawrings;
+  } else if (key == CODED) {
+    if (keyCode == UP) centerY += screen.height/100.0f; 
+    if (keyCode == DOWN) centerY -= screen.height/100.0f; 
+    if (keyCode == LEFT) centerX -= screen.width/100.0f; 
+    if (keyCode == RIGHT) centerX += screen.width/100.0f; 
+   
+  } 
+}
+
+
+// these callback methods are called whenever a TUIO event occurs
+
+// called when an object is added to the scene
+public void addTuioObject(TuioObject tobj) {
+  println("add object "+tobj.getFiducialID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle());
+}
+
+// called when an object is removed from the scene
+public void removeTuioObject(TuioObject tobj) {
+  println("remove object "+tobj.getFiducialID()+" ("+tobj.getSessionID()+")");
+}
+
+// called when an object is moved
+public void updateTuioObject (TuioObject tobj) {
+  println("update object "+tobj.getFiducialID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
+          +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
+}
+
+// called when a cursor is added to the scene
+public void addTuioCursor(TuioCursor tcur) {
+  println("add cursor "+tcur.getFingerID()+" ("+tcur.getSessionID()+ ") " +tcur.getX()+" "+tcur.getY());
+}
+
+// called when a cursor is moved
+public void updateTuioCursor (TuioCursor tcur) {
+  println("update cursor "+tcur.getFingerID()+" ("+tcur.getSessionID()+ ") " +tcur.getX()+" "+tcur.getY()
+          +" "+tcur.getMotionSpeed()+" "+tcur.getMotionAccel());
+}
+
+
+// called when a cursor is removed from the scene
+public void removeTuioCursor(TuioCursor tcur) {
+  println("remove cursor "+tcur.getFingerID()+" ("+tcur.getSessionID()+")");
+}
+
+// called after each message bundle
+// representing the end of an image frame
+public void refresh(long timestamp) { 
+  //redraw();
+}
+  static public void main(String args[]) {
+    PApplet.main(new String[] { "--present", "--bgcolor=#666666", "--hide-stop", "TuioDome" });
+  }
+}

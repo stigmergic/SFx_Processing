@@ -1,3 +1,28 @@
+import processing.core.*; 
+import processing.xml.*; 
+
+import oscP5.*; 
+import netP5.*; 
+
+import oscP5.*; 
+import netP5.*; 
+
+import java.applet.*; 
+import java.awt.Dimension; 
+import java.awt.Frame; 
+import java.awt.event.MouseEvent; 
+import java.awt.event.KeyEvent; 
+import java.awt.event.FocusEvent; 
+import java.awt.Image; 
+import java.io.*; 
+import java.net.*; 
+import java.text.*; 
+import java.util.*; 
+import java.util.zip.*; 
+import java.util.regex.*; 
+
+public class OSC_dometest extends PApplet {
+
 /**
  * oscP5broadcastClient by andreas schlegel
  * an osc broadcast client.
@@ -5,8 +30,8 @@
  * oscP5 website at http://www.sojamo.de/oscP5
  */
 
-import oscP5.*;
-import netP5.*;
+
+
 
 float offA = PI;
 
@@ -19,7 +44,7 @@ float cax,cay,caz;
 OscP5 oscP5;
 
 
-void setup() {
+public void setup() {
   size(screen.width,screen.height);
   
   strokeWeight(2);
@@ -35,7 +60,7 @@ void setup() {
 
 
 
-void draw() {
+public void draw() {
   fill(0,1);
   noStroke();
   rect(0,0,width,height);
@@ -59,28 +84,28 @@ void draw() {
 
 }
 
-void drawCircle(float X, float Y, float S, float angle, color c) {
+public void drawCircle(float X, float Y, float S, float angle, int c) {
   stroke(c);
   ellipse(X, Y, ax * S, ax * S);
   
   line(X, Y,X  * width * cos(-angle+offA), Y  * height * sin(-angle+offA));  
 }
 
-void mousePressed() {
+public void mousePressed() {
 }
 
 
-void keyPressed() {
+public void keyPressed() {
   switch(key) {
     case('c'):
       break;
     case('d'):
       break;
     case('.'):
-      offA += 0.1;
+      offA += 0.1f;
       break;
     case(','):
-      offA -= 0.1;
+      offA -= 0.1f;
       break;
 
   }  
@@ -88,7 +113,7 @@ void keyPressed() {
 
 
 /* incoming osc message are forwarded to the oscEvent method. */
-void oscEvent(OscMessage theOscMessage) {
+public void oscEvent(OscMessage theOscMessage) {
   /* get and print the address pattern and the typetag of the received OscMessage */
   println("### received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
   theOscMessage.print();
@@ -100,14 +125,18 @@ void oscEvent(OscMessage theOscMessage) {
   }
   
   if (theOscMessage.addrPattern().equals("/acc")) {
-    ax = theOscMessage.get(0).floatValue()/9.8;
-    ay = theOscMessage.get(1).floatValue()/9.8;  
-    az = theOscMessage.get(2).floatValue()/9.8;   
+    ax = theOscMessage.get(0).floatValue()/9.8f;
+    ay = theOscMessage.get(1).floatValue()/9.8f;  
+    az = theOscMessage.get(2).floatValue()/9.8f;   
   }
 
   if (theOscMessage.addrPattern().equals("/ori")) {
-    anglex = theOscMessage.get(0).intValue()/180.0*PI;
-    angley = theOscMessage.get(1).intValue()/180.0*PI;  
-    anglez = theOscMessage.get(2).intValue()/180.0*PI;     
+    anglex = theOscMessage.get(0).intValue()/180.0f*PI;
+    angley = theOscMessage.get(1).intValue()/180.0f*PI;  
+    anglez = theOscMessage.get(2).intValue()/180.0f*PI;     
   }  
+}
+  static public void main(String args[]) {
+    PApplet.main(new String[] { "--present", "--bgcolor=#666666", "--hide-stop", "OSC_dometest" });
+  }
 }
