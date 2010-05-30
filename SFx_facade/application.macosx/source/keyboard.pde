@@ -10,6 +10,16 @@ float maxSpeed = 5.0;
 float backAlpha = 100;
 color  backColor = color(0);
 
+public static final String[] MASKMODES = {
+  "Rectangle",
+  "Triangle"
+};
+
+public static final int FIRST_MASKMODE = 0;
+public static final int LAST_MASKMODE = MASKMODES.length-1;
+int maskmode = FIRST_MASKMODE;
+
+
 void keyPressed() {
   switch(key) {
     case 'b':
@@ -31,14 +41,15 @@ void keyPressed() {
       drawfilter = !drawfilter;
       break;
     case 'd':
-      if (lastX>=0) {
-        lastX = -1;
+      if (mousePoints.hasPoints()) {
+        mousePoints.pop();
       } else {
-        if (masks.size()>0) {
-          Mask m = masks.get(masks.size()-1);
-          lastX = m.x;
-          lastY = m.y;
-          masks.remove(m);
+        int i = masks.size()-1;
+        if (i>=0) {
+          Mask m = masks.get(i);
+          mousePoints.add(m.getPoints());
+          mousePoints.pop();
+          masks.remove(i);
         }
       }
       
@@ -66,7 +77,10 @@ void keyPressed() {
     case '.':
       backAlpha = min(255, backAlpha+1);
       break;
-      
+    case 'M':
+      maskmode += 1;
+      if (maskmode > LAST_MASKMODE) maskmode = FIRST_MASKMODE;
+      break;      
     default:
       println("Key Pressed: " + key);
   }  

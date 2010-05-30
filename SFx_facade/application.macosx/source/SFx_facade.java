@@ -18,6 +18,7 @@ import java.util.regex.*;
 
 
 
+
 /*
    Saturated Colors
   
@@ -113,7 +114,9 @@ public void draw() {
 
   fill(255);
   text("X: " + mouseX + ", Y: " + mouseY, 0,height);  
- 
+  String s = MASKMODES[maskmode];
+  float w = textWidth(s);
+  text(s,width-w, height);
   ticks += 1;
 }
 
@@ -240,6 +243,16 @@ float maxSpeed = 5.0f;
 float backAlpha = 100;
 int  backColor = color(0);
 
+public static final String[] MASKMODES = {
+  "Rectangle",
+  "Triangle"
+};
+
+public static final int FIRST_MASKMODE = 0;
+public static final int LAST_MASKMODE = MASKMODES.length-1;
+int maskmode = FIRST_MASKMODE;
+
+
 public void keyPressed() {
   switch(key) {
     case 'b':
@@ -261,14 +274,15 @@ public void keyPressed() {
       drawfilter = !drawfilter;
       break;
     case 'd':
-      if (lastX>=0) {
-        lastX = -1;
+      if (mousePoints.hasPoints()) {
+        mousePoints.pop();
       } else {
-        if (masks.size()>0) {
-          Mask m = masks.get(masks.size()-1);
-          lastX = m.x;
-          lastY = m.y;
-          masks.remove(m);
+        int i = masks.size()-1;
+        if (i>=0) {
+          Mask m = masks.get(i);
+          mousePoints.add(m.getPoints());
+          mousePoints.pop();
+          masks.remove(i);
         }
       }
       
@@ -296,7 +310,10 @@ public void keyPressed() {
     case '.':
       backAlpha = min(255, backAlpha+1);
       break;
-      
+    case 'M':
+      maskmode += 1;
+      if (maskmode > LAST_MASKMODE) maskmode = FIRST_MASKMODE;
+      break;      
     default:
       println("Key Pressed: " + key);
   }  
@@ -453,26 +470,29 @@ public class Letter {
   }
 }
 
-float lastX = -1, lastY;
-
+PointBuffer mousePoints;
 
 ArrayList<Mask> masks;
 
 public void setupMasks() {
   masks = new ArrayList<Mask>();
-  
-  //masks.add(new Mask());  
+  mousePoints = new PointBuffer();
 }
+
+public boolean isMouseMode(String s) {
+  return MASKMODES[maskmode].equals(s);
+}
+  
 
 public void drawMasks() {
   for (Mask m : masks) {
     m.draw();
   }
 
-  if (domouse && lastX >= 0) {
+  if (domouse && mousePoints.hasPoints()) {
     noFill();
     stroke(255);
-    rect(lastX, lastY, mouseX - lastX, mouseY - lastY);  
+    mousePoints.draw(mouseX, mouseY);
   }  
 }
 
@@ -487,38 +507,63 @@ public void repelMasks() {
 
 public void masksMousePressed() {
   if (!domouse) return;
+  mousePoints.push(new PVector(mouseX, mouseY));
   
-  if (lastX >= 0) {
-    float x = min(lastX, mouseX);
-    float y = min(lastY, mouseY);
-    float w = abs(lastX-mouseX);
-    float h = abs(lastY-mouseY);
-    
-    masks.add(new Mask(x,y,w,h)); 
-    lastX = -1;
-  } else {
-    lastX = mouseX;
-    lastY = mouseY;
-  }  
+  if (isMouseMode("Rectangle") && mousePoints.size() == 2) { 
+    masks.add(new RectMask(mousePoints));
+  } else if (isMouseMode("Triangle") && mousePoints.size() == 3) {
+    masks.add(new TriangleMask(mousePoints));  
+  }
 }
 
 // -------------------------------------
 
-class Mask {
-  float x, y, w, h;
-
-  public Mask(float _x, float _y, float _w, float _h) {
-   x = _x;
-   y = _y;
-   w = _w;
-   h = _h; 
+abstract class Mask {
+    int repelCount = 0;
     
+    public void repel(Letter l) {
+      
+    };
+    
+    public void incCount() {
+      repelCount += 1;  
+    }
+    
+    public void clearCount() {
+      repelCount = 0;  
+    }
+    
+    public int repelCount() {
+      return repelCount;
+    }
+    
+    public void draw() {
+      
+    };
+    public PVector[] getPoints() {
+      return null;  
+    };
+}
+
+
+class RectMask extends Mask {
+  float x,y,w,h;
+
+  public RectMask(PointBuffer pts) {
+    PVector np1 = pts.pop();
+    PVector np2 = pts.pop();
+    x = min(np1.x, np2.x);
+    y = min(np1.y, np2.y);
+    w = abs(np1.x - np2.x);
+    h = abs(np1.y - np2.y);
   }
 
   public void draw() {
-    fill(0);
+    fill(repelCount()>0 ? 50 : 0);
     stroke(255);
-    rect(x,y,w,h);  
+    rect(x,y,w,h);
+    
+    clearCount();  
   }
 
   public void repel(Letter l) {
@@ -537,14 +582,155 @@ class Mask {
     l.ndy += sin(f);
     l.nn += 1;
     
-  }  
+    incCount();
+  } 
+ 
+  public PVector[] getPoints() {
+    PVector[] pts = new PVector[2];
+    pts[0] = new PVector(x,y);
+    pts[1] = new PVector(x+w,y+h);
+    
+    return pts;
+  } 
   
 }
+
+class TriangleMask extends Mask {
+  PVector[] points;
+
+  public TriangleMask(PointBuffer pts) {
+    points = new PVector[3];
+    points[0] = pts.pop();
+    points[1] = pts.pop();
+    points[2] = pts.pop();
+  }
+
+  public void draw() {
+    fill(repelCount()>0 ? 50 : 0);
+    stroke(255);
+    beginShape();
+    vertex(points[0].x, points[0].y);
+    vertex(points[1].x, points[1].y);
+    vertex(points[2].x, points[2].y);
+    endShape(CLOSE);
+    
+    clearCount();  
+  }
+
+  public void repel(Letter l) {
+    if (!inside(new PVector(l.x + l.w/2, l.y - l.h/2))
+        && !inside(new PVector(l.x , l.y - l.h)) 
+        && !inside(new PVector(l.x + l.w, l.y - l.h)) 
+        && !inside(new PVector(l.x + l.w, l.y)) 
+        && !inside(new PVector(l.x, l.y))
+    ) return;
+   
+    float cx = (points[0].x + points[1].x + points[2].x) / 3;
+    float cy = (points[0].y + points[1].y + points[2].y) / 3;
+    float lx = l.x + l.w/2;
+    float ly = l.y - l.h/2;
+    
+    float f = atan2(ly-cy,lx-cx);
+    l.ndx += cos(f);
+    l.ndy += sin(f);
+    l.nn += 1;
+
+    incCount(); 
+  } 
+ 
+  public PVector[] getPoints() {    
+    return points;
+  } 
+  
+  public boolean inside(PVector p) {
+    //Adapted from: http://www.blackpawn.com/texts/pointinpoly/default.html
+    // Compute vectors        
+    PVector v0 = PVector.sub(points[2], points[0]);
+    PVector v1 = PVector.sub(points[1], points[0]);
+    PVector v2 = PVector.sub(p, points[0]);
+
+    // Compute dot products
+    float dot00 = PVector.dot(v0, v0);
+    float dot01 = PVector.dot(v0, v1);
+    float dot02 = PVector.dot(v0, v2);
+    float dot11 = PVector.dot(v1, v1);
+    float dot12 = PVector.dot(v1, v2);
+
+    // Compute barycentric coordinates
+    float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+    float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+    // Check if point is in triangle
+    return (u > 0) && (v > 0) && (u + v < 1); 
+  }
+  
+}
+
+
 
 
 public void mousePressed() {
   masksMousePressed();  
 }
+
+
+class PointBuffer {
+  ArrayList<PVector> points;
+
+  public PointBuffer() {
+    points = new ArrayList<PVector>();
+  }
+  
+  public int size() {
+    return points.size();  
+  }
+
+  public void push(PVector p) {
+    points.add(p);
+  }
+
+  public PVector pop() {
+    if (!hasPoints()) return null;
+
+    int i = points.size()-1;
+
+    PVector p = points.get(i);
+    points.remove(i);
+    return p;
+  }
+  
+  public PVector popHead() {
+     if (!hasPoints()) return null;
+   
+    PVector p = points.get(0);
+    points.remove(0);
+    return p;    
+  }
+  
+  public void add(PVector[] pts) {
+    for (PVector p : pts) push(p);  
+  }
+  
+  public boolean hasPoints() {
+    return points.size()>0;  
+  }
+  
+  public void draw() {
+    noFill();
+    stroke(255);
+    beginShape();
+    for (PVector p : points) vertex(p.x, p.y);
+    endShape(CLOSE);  
+  }
+  
+  public void draw(float x, float y) {
+    push(new PVector(x,y));
+    draw();
+    pop();  
+  }
+}
+
 
 
 

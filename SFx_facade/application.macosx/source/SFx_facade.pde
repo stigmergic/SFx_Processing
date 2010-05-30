@@ -1,4 +1,5 @@
 
+
 /*
    Saturated Colors
   
@@ -94,7 +95,9 @@ void draw() {
 
   fill(255);
   text("X: " + mouseX + ", Y: " + mouseY, 0,height);  
- 
+  String s = MASKMODES[maskmode];
+  float w = textWidth(s);
+  text(s,width-w, height);
   ticks += 1;
 }
 
