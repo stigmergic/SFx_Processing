@@ -4,7 +4,7 @@
    Saturated Colors
   
   Letters are colored randomly
-    -- Color Pallate
+    -- Color Palette
     -- Font -- bold/itali/normal (fixed for a set)
     -- Letters come in from somewhere
     -- Swarm around/bounce
@@ -44,30 +44,15 @@ long ticks = 0;
 
 void setup() {
   float aspect = 2.6666666666666665;
-  size(screen.width, int(screen.width/aspect));
+  //float aspect = 1440.0/900.0;
+  int w = (int) (screen.width * 1);
+  size(w, int(w/aspect));
   
   setupFonts();  
     
   textFont(randomFont(), textHeight);
   
-  phrase = words[0];
-  
-  Letter l, ol = null;
-  int i =0;
-  letters = new ArrayList<Letter>();
-  for (char c : phrase.toCharArray()) {
-    l = new Letter(c);
-    l.offset = i * 10;
-    if (ol != null) {
-      l.preceeding = ol;
-      ol.next = l;  
-      
-    }
-    ol = l;
-    letters.add(l);
-    i+=1;
-  }
-
+  randomWords();
   setupEntrances();
   entrance();
   
@@ -93,13 +78,24 @@ void draw() {
   if (drawmasks) drawMasks();
   repelMasks();
 
+  textSize(24);
   fill(255);
-  text("X: " + mouseX + ", Y: " + mouseY, 0,height);  
+  text("X: " + float(mouseX)/width + ", Y: " + float(mouseY)/height, 0,height);  
   String s = MASKMODES[maskmode];
   float w = textWidth(s);
   text(s,width-w, height);
   ticks += 1;
+  drawBanner(); 
 }
+
+  float getX(float x) {
+    return x*width;  
+  }
+  
+  float getY(float y) {
+    return y*height;
+  }
+
 
 
 

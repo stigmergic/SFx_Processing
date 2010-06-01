@@ -1,3 +1,12 @@
+
+/*
+String[] words = {
+      "Its not true that I had nothing on, I had the radio on.",
+      "sfX"
+    };
+
+*/
+
 String[] words = {
       "The Santa Fe Complex",
       "Santa Fe Complex", 
@@ -10,6 +19,27 @@ String phrase;
 ArrayList<Letter> letters;
 
 float letterStrength = 10.0;
+
+void randomWords() {
+   phrase = words[0];
+  
+  Letter l, ol = null;
+  int i =0;
+  letters = new ArrayList<Letter>();
+  for (char c : phrase.toCharArray()) {
+    l = new Letter(c);
+    l.offset = i * 10;
+    if (ol != null) {
+      l.preceeding = ol;
+      ol.next = l;  
+      
+    }
+    ol = l;
+    letters.add(l);
+    i+=1;
+  }
+ 
+}
 
 public class Letter {
 
@@ -25,7 +55,7 @@ public class Letter {
   float w,h;
   color co;
   float a, da;
-  float accel = 0.1;
+  float accel = 0.01;
   float curVel = maxSpeed;
 
   Letter next = null;
@@ -36,14 +66,17 @@ public class Letter {
     x = width/2;
     y = height/2;
     float f = random(PI*2);
+    
     dx = cos(f);
     dy = sin(f);
+    
     da = random(0.1);
 
     co = randomColor();
 
     w = textWidth(letter);
     h = textHeight;
+    fontSize = textHeight;
   }
 
   void draw() {
@@ -54,33 +87,51 @@ public class Letter {
     pushMatrix();
     translate(x+w/2,y-h/2);
     rotate(a);
-    scale((sin((-ticks+offset)/30.0) + 1.5) * 0.75);
 
     //fill(0,0,50);
-    //text(letter, maxSpeed, maxSpeed);      
+    //text(letter, maxSpeed, maxSpeed); 
+    textSize(fontSize);    
     fill(co);
     text(letter, -w/2, h/2);
+
+    noFill();
+    stroke(100,255,255);
+    if (drawdebug) rect(-w/2,-h/2,w,h);
 
     popMatrix();
   } 
 
   void step() {
     if (nn>0) {
-      dx = ndx / nn;
-      dy = ndy / nn;
-      nn = 0;
-      ndx = 0;
-      ndy = 0;
+      ndx /= nn; 
+      ndy /= nn; 
+      float l = sqrt(ndx*ndx + ndy*ndy);
+      if (l>0) {
+      dx = ndx/l*friction;
+      dy = ndy/l*friction;
+      } else {
+        dx = 0;
+        dy = 0;  
+      }
+      
+      nn = 1;
+      ndx = dx;
+      ndy = dy;
     }
+    
+    fontSize = textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 0.75;
+    textSize(fontSize);
+    w = textWidth(letter);
+    h = fontSize;
     
     move();
   }
 
   void move() {
     if (resolve) {
-      float nx = x;
-      float ny = y; 
-      float na = a;
+      float nx = 0;
+      float ny = 0; 
+      float na = 0;
 
       if (preceeding != null) {
         nx += preceeding.x + preceeding.w;
@@ -89,7 +140,7 @@ public class Letter {
       } 
       else {
         ny += 170;
-        nx += 470;
+        nx += 0; //470;
         na += 0;
       }
       if (next != null) {
@@ -99,13 +150,13 @@ public class Letter {
       } 
       else {
         ny += 170;
-        nx += 1020-w;
+        nx += width-w; //1020-w;
         na += 0;
       }
 
-      nx /= 3;
-      ny /= 3;
-      na /= 3;
+      nx /= 2;
+      ny /= 2;
+      na /= 2;
       a = na;
 
       if (dist(nx,ny,x,y)>curVel) {
@@ -129,22 +180,22 @@ public class Letter {
 
     if (x+w>width) {
       x = width-w;
-      ndx -= dx;
+      ndx -= dx*2;
       nn += 1;
     } 
     if (x<0) {
       x = 0;
-      ndx -= dx;
+      ndx -= dx*2;
       nn += 1;
     } 
     if (y>height) {
       y = height;
-      ndy -= dy;
+      ndy -= dy*2;
       nn += 1;
     } 
     if (y<h) {
       y = h;
-      ndy -= dy;
+      ndy -= dy*2;
       nn += 1;
     }
   }

@@ -17,7 +17,9 @@ public void setupEntrances() {
 }
 
 public void entrance() {
-  Entrance e = entrances.get(int(random(entrances.size())));
+  //Entrance e = entrances.get(int(random(entrances.size())));
+  Entrance e = entrances.get(3);
+  
   for (Letter l : letters) {
     e.position(l);
   }  
@@ -26,9 +28,14 @@ public void entrance() {
 // -------------------------------------------------
 
 class Entrance {
+  
   void position(Letter l) {
-    l.x = width/2;
-    l.y = height/2;  
+    l.x = getX(0.5);
+    l.y = getY(0.25);
+    float f = random(2*PI);
+    l.dx = cos(f);
+    l.dy = sin(f); 
+    l.curVel = 5; 
   }  
 }
 
@@ -50,8 +57,24 @@ class EntranceTop extends Entrance{
 
 class EntranceSides extends Entrance{
   void position(Letter l) {
-    l.x = (random(1)<0.5) ? 0 : width;
-    l.y = top;  
+    float f = random(PI/2);
+    if  (random(1)<0.5) {
+      l.x = getX(0.0208);
+      f = -f;
+      l.dx = cos(f);
+      l.dy = sin(f);
+      
+    } else {
+      l.x = getX(0.9835);
+      l.dx = cos(f + PI);
+      l.dy = cos(f + PI);
+      
+    }
+    l.y = getY(0.2660);  
+    l.curVel = 5;
+    l.ndx = 0;
+    l.ndy = 0;
+    l.nn = 0;
   }   
 }
 
