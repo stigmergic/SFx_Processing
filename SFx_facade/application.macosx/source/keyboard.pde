@@ -7,6 +7,7 @@ boolean drawbackground = true;
 boolean domouse = true;
 
 float maxSpeed = 5.0;
+float friction = 1.0;
 float backAlpha = 100;
 color  backColor = color(0);
 
@@ -25,9 +26,34 @@ void keyPressed() {
     case 'b':
       drawbackground = !drawbackground;
       break;
-    case 'c':
-      backColor = randomColor();
+
+    case 'v':
+      backColor = color(0);
       break;
+
+   case 'V':
+      for (Letter l : letters) {
+        l.co = color(255);  
+      }
+      break;
+
+    case 'C':
+      backColor = randomColor();
+      for (Letter l : letters) {
+        l.co = randomColor(backColor);  
+      }
+      break;
+
+     case 'c':
+      for (Letter l : letters) {
+        l.co = randomColor(backColor);  
+      }
+      break;
+
+    case 'w':
+      randomWords();
+      break;
+
     case 'm':
       drawmasks = !drawmasks;
       break;
@@ -37,7 +63,7 @@ void keyPressed() {
     case 'f':
         textFont(randomFont(), textHeight);
         break;
-    case 'v':
+    case 'n':
       drawfilter = !drawfilter;
       break;
     case 'd':
@@ -80,7 +106,8 @@ void keyPressed() {
     case 'M':
       maskmode += 1;
       if (maskmode > LAST_MASKMODE) maskmode = FIRST_MASKMODE;
-      break;      
+      break;
+    
     default:
       println("Key Pressed: " + key);
   }  

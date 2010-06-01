@@ -23,7 +23,7 @@ import java.util.regex.*;
    Saturated Colors
   
   Letters are colored randomly
-    -- Color Pallate
+    -- Color Palette
     -- Font -- bold/itali/normal (fixed for a set)
     -- Letters come in from somewhere
     -- Swarm around/bounce
@@ -63,30 +63,15 @@ long ticks = 0;
 
 public void setup() {
   float aspect = 2.6666666666666665f;
-  size(screen.width, PApplet.parseInt(screen.width/aspect));
+  //float aspect = 1440.0/900.0;
+  int w = (int) (screen.width * 1);
+  size(w, PApplet.parseInt(w/aspect));
   
   setupFonts();  
     
   textFont(randomFont(), textHeight);
   
-  phrase = words[0];
-  
-  Letter l, ol = null;
-  int i =0;
-  letters = new ArrayList<Letter>();
-  for (char c : phrase.toCharArray()) {
-    l = new Letter(c);
-    l.offset = i * 10;
-    if (ol != null) {
-      l.preceeding = ol;
-      ol.next = l;  
-      
-    }
-    ol = l;
-    letters.add(l);
-    i+=1;
-  }
-
+  randomWords();
   setupEntrances();
   entrance();
   
@@ -112,17 +97,51 @@ public void draw() {
   if (drawmasks) drawMasks();
   repelMasks();
 
+  textSize(24);
   fill(255);
-  text("X: " + mouseX + ", Y: " + mouseY, 0,height);  
+  text("X: " + PApplet.parseFloat(mouseX)/width + ", Y: " + PApplet.parseFloat(mouseY)/height, 0,height);  
   String s = MASKMODES[maskmode];
   float w = textWidth(s);
   text(s,width-w, height);
   ticks += 1;
+  drawBanner(); 
 }
 
+  public float getX(float x) {
+    return x*width;  
+  }
+  
+  public float getY(float y) {
+    return y*height;
+  }
 
 
 
+
+
+
+PFont ocr = createFont("OCRAStd", 12);
+String bannerString = "     \"Mapping The Complex\"    June 17-19     \"Mapping The Complex\"";
+float bannerWidth = 100;
+
+public void drawBanner() {
+  bannerWidth = getX(0.385f);
+  textFont(ocr, 10);
+  String s2 = bannerString + bannerString;
+  int i = (int) (ticks/8 % (bannerString.length()));
+  int j = s2.length();
+  
+  String s = s2.substring(i,j);
+  float w = textWidth(s);
+  
+  while (w>bannerWidth) {
+    j --;
+    s = s2.substring(i,j);
+    w = textWidth(s);
+  }
+  
+  text(s, getX(0.3134f), getY(0.47f));
+}
 
 
  public int randomColor() {
@@ -130,6 +149,16 @@ public void draw() {
    return color(random(255),255,255);
  }
 
+  public int randomColor(int avoid) {
+    colorMode(HSB);
+    float h = hue(avoid);
+    int c = randomColor();
+    while (abs(hue(c) - h)<30) {
+      c = randomColor();
+    }
+    
+    return c;
+  }
 
 float top;
 float bottom;
@@ -149,7 +178,9 @@ public void setupEntrances() {
 }
 
 public void entrance() {
-  Entrance e = entrances.get(PApplet.parseInt(random(entrances.size())));
+  //Entrance e = entrances.get(int(random(entrances.size())));
+  Entrance e = entrances.get(3);
+  
   for (Letter l : letters) {
     e.position(l);
   }  
@@ -158,9 +189,14 @@ public void entrance() {
 // -------------------------------------------------
 
 class Entrance {
+  
   public void position(Letter l) {
-    l.x = width/2;
-    l.y = height/2;  
+    l.x = getX(0.5f);
+    l.y = getY(0.25f);
+    float f = random(2*PI);
+    l.dx = cos(f);
+    l.dy = sin(f); 
+    l.curVel = 5; 
   }  
 }
 
@@ -182,8 +218,24 @@ class EntranceTop extends Entrance{
 
 class EntranceSides extends Entrance{
   public void position(Letter l) {
-    l.x = (random(1)<0.5f) ? 0 : width;
-    l.y = top;  
+    float f = random(PI/2);
+    if  (random(1)<0.5f) {
+      l.x = getX(0.0208f);
+      f = -f;
+      l.dx = cos(f);
+      l.dy = sin(f);
+      
+    } else {
+      l.x = getX(0.9835f);
+      l.dx = cos(f + PI);
+      l.dy = cos(f + PI);
+      
+    }
+    l.y = getY(0.2660f);  
+    l.curVel = 5;
+    l.ndx = 0;
+    l.ndy = 0;
+    l.nn = 0;
   }   
 }
 
@@ -240,6 +292,7 @@ boolean drawbackground = true;
 boolean domouse = true;
 
 float maxSpeed = 5.0f;
+float friction = 1.0f;
 float backAlpha = 100;
 int  backColor = color(0);
 
@@ -258,9 +311,34 @@ public void keyPressed() {
     case 'b':
       drawbackground = !drawbackground;
       break;
-    case 'c':
-      backColor = randomColor();
+
+    case 'v':
+      backColor = color(0);
       break;
+
+   case 'V':
+      for (Letter l : letters) {
+        l.co = color(255);  
+      }
+      break;
+
+    case 'C':
+      backColor = randomColor();
+      for (Letter l : letters) {
+        l.co = randomColor(backColor);  
+      }
+      break;
+
+     case 'c':
+      for (Letter l : letters) {
+        l.co = randomColor(backColor);  
+      }
+      break;
+
+    case 'w':
+      randomWords();
+      break;
+
     case 'm':
       drawmasks = !drawmasks;
       break;
@@ -270,7 +348,7 @@ public void keyPressed() {
     case 'f':
         textFont(randomFont(), textHeight);
         break;
-    case 'v':
+    case 'n':
       drawfilter = !drawfilter;
       break;
     case 'd':
@@ -313,11 +391,21 @@ public void keyPressed() {
     case 'M':
       maskmode += 1;
       if (maskmode > LAST_MASKMODE) maskmode = FIRST_MASKMODE;
-      break;      
+      break;
+    
     default:
       println("Key Pressed: " + key);
   }  
 }
+
+/*
+String[] words = {
+      "Its not true that I had nothing on, I had the radio on.",
+      "sfX"
+    };
+
+*/
+
 String[] words = {
       "The Santa Fe Complex",
       "Santa Fe Complex", 
@@ -330,6 +418,27 @@ String phrase;
 ArrayList<Letter> letters;
 
 float letterStrength = 10.0f;
+
+public void randomWords() {
+   phrase = words[0];
+  
+  Letter l, ol = null;
+  int i =0;
+  letters = new ArrayList<Letter>();
+  for (char c : phrase.toCharArray()) {
+    l = new Letter(c);
+    l.offset = i * 10;
+    if (ol != null) {
+      l.preceeding = ol;
+      ol.next = l;  
+      
+    }
+    ol = l;
+    letters.add(l);
+    i+=1;
+  }
+ 
+}
 
 public class Letter {
 
@@ -345,7 +454,7 @@ public class Letter {
   float w,h;
   int co;
   float a, da;
-  float accel = 0.1f;
+  float accel = 0.01f;
   float curVel = maxSpeed;
 
   Letter next = null;
@@ -356,14 +465,17 @@ public class Letter {
     x = width/2;
     y = height/2;
     float f = random(PI*2);
+    
     dx = cos(f);
     dy = sin(f);
+    
     da = random(0.1f);
 
     co = randomColor();
 
     w = textWidth(letter);
     h = textHeight;
+    fontSize = textHeight;
   }
 
   public void draw() {
@@ -374,33 +486,51 @@ public class Letter {
     pushMatrix();
     translate(x+w/2,y-h/2);
     rotate(a);
-    scale((sin((-ticks+offset)/30.0f) + 1.5f) * 0.75f);
 
     //fill(0,0,50);
-    //text(letter, maxSpeed, maxSpeed);      
+    //text(letter, maxSpeed, maxSpeed); 
+    textSize(fontSize);    
     fill(co);
     text(letter, -w/2, h/2);
+
+    noFill();
+    stroke(100,255,255);
+    if (drawdebug) rect(-w/2,-h/2,w,h);
 
     popMatrix();
   } 
 
   public void step() {
     if (nn>0) {
-      dx = ndx / nn;
-      dy = ndy / nn;
-      nn = 0;
-      ndx = 0;
-      ndy = 0;
+      ndx /= nn; 
+      ndy /= nn; 
+      float l = sqrt(ndx*ndx + ndy*ndy);
+      if (l>0) {
+      dx = ndx/l*friction;
+      dy = ndy/l*friction;
+      } else {
+        dx = 0;
+        dy = 0;  
+      }
+      
+      nn = 1;
+      ndx = dx;
+      ndy = dy;
     }
+    
+    fontSize = textHeight  * (sin((-ticks+offset)/30.0f) + 1.5f) * 0.75f;
+    textSize(fontSize);
+    w = textWidth(letter);
+    h = fontSize;
     
     move();
   }
 
   public void move() {
     if (resolve) {
-      float nx = x;
-      float ny = y; 
-      float na = a;
+      float nx = 0;
+      float ny = 0; 
+      float na = 0;
 
       if (preceeding != null) {
         nx += preceeding.x + preceeding.w;
@@ -409,7 +539,7 @@ public class Letter {
       } 
       else {
         ny += 170;
-        nx += 470;
+        nx += 0; //470;
         na += 0;
       }
       if (next != null) {
@@ -419,13 +549,13 @@ public class Letter {
       } 
       else {
         ny += 170;
-        nx += 1020-w;
+        nx += width-w; //1020-w;
         na += 0;
       }
 
-      nx /= 3;
-      ny /= 3;
-      na /= 3;
+      nx /= 2;
+      ny /= 2;
+      na /= 2;
       a = na;
 
       if (dist(nx,ny,x,y)>curVel) {
@@ -449,22 +579,22 @@ public class Letter {
 
     if (x+w>width) {
       x = width-w;
-      ndx -= dx;
+      ndx -= dx*2;
       nn += 1;
     } 
     if (x<0) {
       x = 0;
-      ndx -= dx;
+      ndx -= dx*2;
       nn += 1;
     } 
     if (y>height) {
       y = height;
-      ndy -= dy;
+      ndy -= dy*2;
       nn += 1;
     } 
     if (y<h) {
       y = h;
-      ndy -= dy;
+      ndy -= dy*2;
       nn += 1;
     }
   }
