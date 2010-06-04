@@ -38,6 +38,10 @@ void randomWords() {
     letters.add(l);
     i+=1;
   }
+  
+  for (int j=0; j<50; j++) {
+    letters.add(new TriangleShapes(' '));  
+  }
  
 }
 
@@ -88,15 +92,18 @@ public class Letter {
     translate(x+w/2,y-h/2);
     rotate(a);
 
+    //noFill();
+    fill(0);
+    stroke(100,255,255);
+    if (drawdebug) rect(-w/2,-h/2,w,h);
+
     //fill(0,0,50);
     //text(letter, maxSpeed, maxSpeed); 
-    textSize(fontSize);    
+    textSize(fontSize); 
+       
     fill(co);
     text(letter, -w/2, h/2);
 
-    noFill();
-    stroke(100,255,255);
-    if (drawdebug) rect(-w/2,-h/2,w,h);
 
     popMatrix();
   } 
@@ -119,7 +126,7 @@ public class Letter {
       ndy = dy;
     }
     
-    fontSize = textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 0.75;
+    fontSize = textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 1.55;
     textSize(fontSize);
     w = textWidth(letter);
     h = fontSize;
@@ -139,7 +146,7 @@ public class Letter {
         na += preceeding.a;
       } 
       else {
-        ny += 170;
+        ny += 150;
         nx += 0; //470;
         na += 0;
       }
@@ -149,7 +156,7 @@ public class Letter {
         na += next.a;
       } 
       else {
-        ny += 170;
+        ny += 150;
         nx += width-w; //1020-w;
         na += 0;
       }
@@ -199,5 +206,28 @@ public class Letter {
       nn += 1;
     }
   }
+}
+
+public class TriangleShapes extends Letter {
+  float offX1 = random(80) - 20;
+  float offY1 = random(80) - 20;
+  float offX2 = random(80) - 20;
+  float offY2 = random(80) - 20;
+  
+  public TriangleShapes(char c) {
+    super(c);
+    
+  }
+  
+  void draw() {
+    fill(0);
+    stroke(255);
+   beginShape();
+   vertex(x,y);
+   vertex(x+offX1, y + offY2);
+   vertex(x + offX2, y+offY2);
+   endShape(CLOSE); 
+  }
+  
 }
 

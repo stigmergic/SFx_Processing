@@ -15,3 +15,23 @@
     
     return c;
   }
+
+color randomRGBColor() {
+  colorMode(RGB);
+  return color(random(255),0,random(255));
+}
+
+  color randomBackgroundColor() {
+    color c = randomRGBColor();
+    
+    return c;
+  }
+
+  
+  void randomBackground() {
+      backColor = randomBackgroundColor();
+      for (Letter l : letters) {
+        l.co = randomColor(backColor);  
+      }
+ 
+  }

@@ -1,6 +1,7 @@
 
 int textHeight = 36;
 ArrayList<PFont> fonts;
+PFont letterFont;
 
 void setupFonts() {
    fonts = new ArrayList<PFont>();
@@ -15,6 +16,7 @@ void setupFonts() {
   fonts.add(createFont("GiddyupStd", textHeight));
   fonts.add(createFont("OCRAStd", textHeight));
  
+  letterFont = randomFont();
 }
 
 PFont randomFont() {

@@ -43,8 +43,11 @@ public class SFx_facade extends PApplet {
 long ticks = 0;
 
 void setup() {
-  float aspect = 2.6666666666666665;
+  //float aspect = 2.6666666666666665;
   //float aspect = 1440.0/900.0;
+  
+  
+  float aspect = 1280.0/800;
   int w = (int) (screen.width * 1);
   size(w, int(w/aspect));
   
@@ -70,6 +73,7 @@ void draw() {
     rect(0,0,width,height);
   }
   
+  textFont(letterFont, textHeight);
   for (Letter l : letters) {
     l.step();
     l.draw();
@@ -80,12 +84,18 @@ void draw() {
 
   textSize(24);
   fill(255);
-  text("X: " + float(mouseX)/width + ", Y: " + float(mouseY)/height, 0,height);  
+  text("X: " + float(mouseX)/width + ", Y: " + float(mouseY)/height, 0,height); 
+  text("BACKGROUND RGB: " + red(backColor) + ", " + green(backColor) + ", " + blue(backColor), 0, height - 40); 
+  text("BACKGROUND HSB: " + hue(backColor) + ", " + saturation(backColor) + ", " + brightness(backColor), 0, height - 20); 
   String s = MASKMODES[maskmode];
   float w = textWidth(s);
   text(s,width-w, height);
   ticks += 1;
   drawBanner(); 
+  
+  if (ticks % 500 == 0) {
+    randomBackground();  
+  }
 }
 
   float getX(float x) {

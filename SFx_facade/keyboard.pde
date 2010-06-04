@@ -8,7 +8,7 @@ boolean domouse = true;
 
 float maxSpeed = 5.0;
 float friction = 1.0;
-float backAlpha = 100;
+float backAlpha = 255;
 color  backColor = color(0);
 
 public static final String[] MASKMODES = {
@@ -38,10 +38,7 @@ void keyPressed() {
       break;
 
     case 'C':
-      backColor = randomColor();
-      for (Letter l : letters) {
-        l.co = randomColor(backColor);  
-      }
+      randomBackground();
       break;
 
      case 'c':
@@ -61,11 +58,33 @@ void keyPressed() {
       drawdebug = !drawdebug;
       break;
     case 'f':
-        textFont(randomFont(), textHeight);
+        letterFont = randomFont();
         break;
     case 'n':
       drawfilter = !drawfilter;
       break;
+    case '-':
+      bannerWidth -= 5;
+      break;
+    case '=':
+      bannerWidth +=5;
+      break;
+      
+    case '[':
+      movingBannerX -= 5;
+      break;
+      
+    case ']':
+      movingBannerX += 5;
+      break;
+      
+    case '{':
+      movingBannerY -= 5;
+      break;
+    case '}':
+      movingBannerY += 5;
+      break;
+      
     case 'd':
       if (mousePoints.hasPoints()) {
         mousePoints.pop();
@@ -89,11 +108,11 @@ void keyPressed() {
     case 'i':
       drawimage = !drawimage;
       break;
-    case ']':
+    case ';':
       maxSpeed *= 1.01;
       println("Maxspeed: " + maxSpeed);
       break;
-    case '[':
+    case '\'':
       maxSpeed *= 0.99;
       println("Maxspeed: " + maxSpeed);
       break;

@@ -62,8 +62,11 @@ public class SFx_facade extends PApplet {
 long ticks = 0;
 
 public void setup() {
-  float aspect = 2.6666666666666665f;
+  //float aspect = 2.6666666666666665;
   //float aspect = 1440.0/900.0;
+  
+  
+  float aspect = 1280.0f/800;
   int w = (int) (screen.width * 1);
   size(w, PApplet.parseInt(w/aspect));
   
@@ -89,6 +92,7 @@ public void draw() {
     rect(0,0,width,height);
   }
   
+  textFont(letterFont, textHeight);
   for (Letter l : letters) {
     l.step();
     l.draw();
@@ -99,12 +103,18 @@ public void draw() {
 
   textSize(24);
   fill(255);
-  text("X: " + PApplet.parseFloat(mouseX)/width + ", Y: " + PApplet.parseFloat(mouseY)/height, 0,height);  
+  text("X: " + PApplet.parseFloat(mouseX)/width + ", Y: " + PApplet.parseFloat(mouseY)/height, 0,height); 
+  text("BACKGROUND RGB: " + red(backColor) + ", " + green(backColor) + ", " + blue(backColor), 0, height - 40); 
+  text("BACKGROUND HSB: " + hue(backColor) + ", " + saturation(backColor) + ", " + brightness(backColor), 0, height - 20); 
   String s = MASKMODES[maskmode];
   float w = textWidth(s);
   text(s,width-w, height);
   ticks += 1;
   drawBanner(); 
+  
+  if (ticks % 500 == 0) {
+    randomBackground();  
+  }
 }
 
   public float getX(float x) {
@@ -123,10 +133,16 @@ public void draw() {
 PFont ocr = createFont("OCRAStd", 12);
 String bannerString = "     \"Mapping The Complex\"    June 17-19     \"Mapping The Complex\"";
 float bannerWidth = 100;
+float movingBannerX, movingBannerY;
+
+public void setupBanner() {
+  bannerWidth = getX(0.385f);
+  movingBannerX = getX(0.3134f);
+  movingBannerY = getY(0.47f) ; 
+}
 
 public void drawBanner() {
-  bannerWidth = getX(0.385f);
-  textFont(ocr, 10);
+  textFont(ocr, 16);
   String s2 = bannerString + bannerString;
   int i = (int) (ticks/8 % (bannerString.length()));
   int j = s2.length();
@@ -140,7 +156,7 @@ public void drawBanner() {
     w = textWidth(s);
   }
   
-  text(s, getX(0.3134f), getY(0.47f));
+  text(s, movingBannerX, movingBannerY);
 }
 
 
@@ -158,6 +174,26 @@ public void drawBanner() {
     }
     
     return c;
+  }
+
+public int randomRGBColor() {
+  colorMode(RGB);
+  return color(random(255),0,random(255));
+}
+
+  public int randomBackgroundColor() {
+    int c = randomRGBColor();
+    
+    return c;
+  }
+
+  
+  public void randomBackground() {
+      backColor = randomBackgroundColor();
+      for (Letter l : letters) {
+        l.co = randomColor(backColor);  
+      }
+ 
   }
 
 float top;
@@ -243,6 +279,7 @@ class EntranceSides extends Entrance{
 
 int textHeight = 36;
 ArrayList<PFont> fonts;
+PFont letterFont;
 
 public void setupFonts() {
    fonts = new ArrayList<PFont>();
@@ -257,6 +294,7 @@ public void setupFonts() {
   fonts.add(createFont("GiddyupStd", textHeight));
   fonts.add(createFont("OCRAStd", textHeight));
  
+  letterFont = randomFont();
 }
 
 public PFont randomFont() {
@@ -293,7 +331,7 @@ boolean domouse = true;
 
 float maxSpeed = 5.0f;
 float friction = 1.0f;
-float backAlpha = 100;
+float backAlpha = 255;
 int  backColor = color(0);
 
 public static final String[] MASKMODES = {
@@ -323,10 +361,7 @@ public void keyPressed() {
       break;
 
     case 'C':
-      backColor = randomColor();
-      for (Letter l : letters) {
-        l.co = randomColor(backColor);  
-      }
+      randomBackground();
       break;
 
      case 'c':
@@ -346,11 +381,33 @@ public void keyPressed() {
       drawdebug = !drawdebug;
       break;
     case 'f':
-        textFont(randomFont(), textHeight);
+        letterFont = randomFont();
         break;
     case 'n':
       drawfilter = !drawfilter;
       break;
+    case '-':
+      bannerWidth -= 5;
+      break;
+    case '=':
+      bannerWidth +=5;
+      break;
+      
+    case '[':
+      movingBannerX -= 5;
+      break;
+      
+    case ']':
+      movingBannerX += 5;
+      break;
+      
+    case '{':
+      movingBannerY -= 5;
+      break;
+    case '}':
+      movingBannerY += 5;
+      break;
+      
     case 'd':
       if (mousePoints.hasPoints()) {
         mousePoints.pop();
@@ -374,11 +431,11 @@ public void keyPressed() {
     case 'i':
       drawimage = !drawimage;
       break;
-    case ']':
+    case ';':
       maxSpeed *= 1.01f;
       println("Maxspeed: " + maxSpeed);
       break;
-    case '[':
+    case '\'':
       maxSpeed *= 0.99f;
       println("Maxspeed: " + maxSpeed);
       break;
@@ -437,6 +494,10 @@ public void randomWords() {
     letters.add(l);
     i+=1;
   }
+  
+  for (int j=0; j<50; j++) {
+    letters.add(new TriangleShapes(' '));  
+  }
  
 }
 
@@ -487,15 +548,18 @@ public class Letter {
     translate(x+w/2,y-h/2);
     rotate(a);
 
+    //noFill();
+    fill(0);
+    stroke(100,255,255);
+    if (drawdebug) rect(-w/2,-h/2,w,h);
+
     //fill(0,0,50);
     //text(letter, maxSpeed, maxSpeed); 
-    textSize(fontSize);    
+    textSize(fontSize); 
+       
     fill(co);
     text(letter, -w/2, h/2);
 
-    noFill();
-    stroke(100,255,255);
-    if (drawdebug) rect(-w/2,-h/2,w,h);
 
     popMatrix();
   } 
@@ -518,7 +582,7 @@ public class Letter {
       ndy = dy;
     }
     
-    fontSize = textHeight  * (sin((-ticks+offset)/30.0f) + 1.5f) * 0.75f;
+    fontSize = textHeight  * (sin((-ticks+offset)/30.0f) + 1.5f) * 1.55f;
     textSize(fontSize);
     w = textWidth(letter);
     h = fontSize;
@@ -538,7 +602,7 @@ public class Letter {
         na += preceeding.a;
       } 
       else {
-        ny += 170;
+        ny += 150;
         nx += 0; //470;
         na += 0;
       }
@@ -548,7 +612,7 @@ public class Letter {
         na += next.a;
       } 
       else {
-        ny += 170;
+        ny += 150;
         nx += width-w; //1020-w;
         na += 0;
       }
@@ -598,6 +662,29 @@ public class Letter {
       nn += 1;
     }
   }
+}
+
+public class TriangleShapes extends Letter {
+  float offX1 = random(80) - 20;
+  float offY1 = random(80) - 20;
+  float offX2 = random(80) - 20;
+  float offY2 = random(80) - 20;
+  
+  public TriangleShapes(char c) {
+    super(c);
+    
+  }
+  
+  public void draw() {
+    fill(0);
+    stroke(255);
+   beginShape();
+   vertex(x,y);
+   vertex(x+offX1, y + offY2);
+   vertex(x + offX2, y+offY2);
+   endShape(CLOSE); 
+  }
+  
 }
 
 PointBuffer mousePoints;
