@@ -44,6 +44,47 @@ void masksMousePressed() {
   }
 }
 
+   RectMask createRectMask(Map<String, Object> map) {
+      RectMask mask = new RectMask();
+      if (map.containsKey("x")) {
+        mask.x = ((Double)map.get("x")).floatValue() * width;
+      }  
+      if (map.containsKey("y")) {
+        mask.y = ((Double)map.get("y")).floatValue() * height;
+      }  
+      if (map.containsKey("h")) {
+        mask.h = ((Double)map.get("h")).floatValue() * height;
+      }  
+      if (map.containsKey("w")) {
+        mask.w = ((Double)map.get("w")).floatValue() * width;
+      }  
+      
+      return mask;
+    }
+
+  TriangleMask createTriangleMask(Map<String, Object> map) {
+    TriangleMask mask = new TriangleMask();
+
+    if (map.containsKey("p0")) {
+      float x = ((Double)((List)map.get("p0")).get(0)).floatValue() * width; 
+      float y = ((Double)((List)map.get("p0")).get(1)).floatValue() * height;
+      mask.points[0] = new PVector(x,y);
+    } 
+    if (map.containsKey("p1")) {
+      float x = ((Double)((List)map.get("p1")).get(0)).floatValue() * width; 
+      float y = ((Double)((List)map.get("p1")).get(1)).floatValue() * height;
+      mask.points[1] = new PVector(x,y);
+    } 
+    if (map.containsKey("p2")) {
+      float x = ((Double)((List)map.get("p2")).get(0)).floatValue() * width; 
+      float y = ((Double)((List)map.get("p2")).get(1)).floatValue() * height;
+      mask.points[2] = new PVector(x,y);
+    } 
+   
+    return mask; 
+  }
+
+
 // -------------------------------------
 
 abstract class Mask {
@@ -71,12 +112,22 @@ abstract class Mask {
     PVector[] getPoints() {
       return null;  
     };
+    
+    Map<String, Object> represent() {
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      return map;
+    }
 }
 
 
 class RectMask extends Mask {
   float x,y,w,h;
 
+  public RectMask() {
+    
+  }
+  
   public RectMask(PointBuffer pts) {
     PVector np1 = pts.pop();
     PVector np2 = pts.pop();
@@ -121,10 +172,28 @@ class RectMask extends Mask {
     return pts;
   } 
   
+   Map<String, Object> represent() {
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      map.put("type", "RectMask");
+
+      map.put("x", x/width);
+      map.put("y", y/height);
+      map.put("w", w/width);
+      map.put("h", h/height);
+        
+      return map;
+    }
+    
+
 }
 
 class TriangleMask extends Mask {
   PVector[] points;
+
+  public TriangleMask() {
+    points = new PVector[3];    
+  }
 
   public TriangleMask(PointBuffer pts) {
     points = new PVector[3];
@@ -193,6 +262,29 @@ class TriangleMask extends Mask {
     return (u > 0) && (v > 0) && (u + v < 1); 
   }
   
+     Map<String, Object> represent() {
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      Float[] a;
+      
+      int i=0;
+      
+      map.put("type", "TriangleMask");
+      
+      
+      for (PVector p : points) {
+        a = new Float[2];
+        a[0] = p.x / width;
+        a[1] = p.y / height;
+        
+        map.put("p"+i, a);
+        i+=1;
+      }
+      
+        
+      return map;
+    }
+
 }
 
 

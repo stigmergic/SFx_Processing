@@ -11,6 +11,19 @@ float friction = 1.0;
 float backAlpha = 255;
 color  backColor = color(0);
 
+public boolean isHighlightMode() {
+  return FOCUSMODES[focus].equals("Highlight Mode");  
+}
+
+public static final String[] FOCUSMODES = {
+  "Mask Mode",
+  "Highlight Mode"
+};
+
+public static final int FIRST_FOCUS = 0;
+public static final int LAST_FOCUS = FOCUSMODES.length-1;
+int focus = FIRST_FOCUS;
+
 public static final String[] MASKMODES = {
   "Rectangle",
   "Triangle"
@@ -22,6 +35,8 @@ int maskmode = FIRST_MASKMODE;
 
 
 void keyPressed() {
+  if (highLightKeyPressed(key)) return;
+  
   switch(key) {
     case 'b':
       drawbackground = !drawbackground;
@@ -60,6 +75,14 @@ void keyPressed() {
     case 'f':
         letterFont = randomFont();
         break;
+    case 'h':
+      focus = focus + 1;
+      if (focus>LAST_FOCUS) focus = FIRST_FOCUS;
+      break;
+    case 'H':
+      focus = focus - 1;
+      if (focus<FIRST_FOCUS) focus = LAST_FOCUS;
+      break;
     case 'n':
       drawfilter = !drawfilter;
       break;
@@ -108,6 +131,13 @@ void keyPressed() {
     case 'i':
       drawimage = !drawimage;
       break;
+      
+    case '1':
+      saveState("last.yaml");
+      break;
+    case '2':
+      loadState("last.yaml", this);
+      break;
     case ';':
       maxSpeed *= 1.01;
       println("Maxspeed: " + maxSpeed);
@@ -125,6 +155,10 @@ void keyPressed() {
     case 'M':
       maskmode += 1;
       if (maskmode > LAST_MASKMODE) maskmode = FIRST_MASKMODE;
+      break;
+    case ESC:
+      saveState("last.yaml");
+      exit();
       break;
     
     default:

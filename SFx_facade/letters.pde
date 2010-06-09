@@ -39,9 +39,11 @@ void randomWords() {
     i+=1;
   }
   
+  /*
   for (int j=0; j<50; j++) {
     letters.add(new TriangleShapes(' '));  
   }
+  */
  
 }
 

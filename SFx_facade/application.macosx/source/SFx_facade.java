@@ -1,6 +1,40 @@
 import processing.core.*; 
 import processing.xml.*; 
 
+import java.io.File; 
+import java.io.FileNotFoundException; 
+import java.io.FileReader; 
+import java.io.FileWriter; 
+import java.io.IOException; 
+import java.util.HashMap; 
+import org.yaml.snakeyaml.Dumper; 
+import org.yaml.snakeyaml.DumperOptions; 
+import org.yaml.snakeyaml.Loader; 
+import org.yaml.snakeyaml.Yaml; 
+import org.yaml.snakeyaml.constructor.AbstractConstruct; 
+import org.yaml.snakeyaml.constructor.Constructor; 
+import org.yaml.snakeyaml.nodes.MappingNode; 
+import org.yaml.snakeyaml.nodes.Node; 
+import org.yaml.snakeyaml.representer.Represent; 
+import org.yaml.snakeyaml.representer.Representer; 
+
+import org.yaml.snakeyaml.representer.*; 
+import org.yaml.snakeyaml.util.*; 
+import org.yaml.snakeyaml.error.*; 
+import org.yaml.snakeyaml.scanner.*; 
+import org.yaml.snakeyaml.resolver.*; 
+import org.yaml.snakeyaml.reader.*; 
+import org.yaml.snakeyaml.nodes.*; 
+import org.yaml.snakeyaml.introspector.*; 
+import org.yaml.snakeyaml.tokens.*; 
+import org.yaml.snakeyaml.constructor.*; 
+import org.yaml.snakeyaml.emitter.*; 
+import org.yaml.snakeyaml.*; 
+import org.yaml.snakeyaml.events.*; 
+import org.yaml.snakeyaml.serializer.*; 
+import org.yaml.snakeyaml.composer.*; 
+import org.yaml.snakeyaml.parser.*; 
+
 import java.applet.*; 
 import java.awt.Dimension; 
 import java.awt.Frame; 
@@ -60,13 +94,16 @@ import java.util.regex.*;
 
 public class SFx_facade extends PApplet {
 long ticks = 0;
+String name = "SFx_facade v0.1";
+//String lastName = 
 
 public void setup() {
   //float aspect = 2.6666666666666665;
   //float aspect = 1440.0/900.0;
+  float aspect = 2048/768.0f;
   
   
-  float aspect = 1280.0f/800;
+  //float aspect = 1280.0/800;
   int w = (int) (screen.width * 1);
   size(w, PApplet.parseInt(w/aspect));
   
@@ -79,8 +116,12 @@ public void setup() {
   entrance();
   
   setupMasks();
+  setupHighLights();
   
   img = loadImage("Facade3.jpg");
+  
+  setupState();
+  loadState("last.yaml", this);
 }
 
 public void draw() {
@@ -88,7 +129,11 @@ public void draw() {
   if (drawimage) drawImage(img);
   if (drawfilter) {
     noStroke();
-    fill(backColor,backAlpha);
+    if (drawimage) {
+      fill(backColor,100);
+    } else {
+      fill(backColor,backAlpha);      
+    }
     rect(0,0,width,height);
   }
   
@@ -110,11 +155,19 @@ public void draw() {
   float w = textWidth(s);
   text(s,width-w, height);
   ticks += 1;
-  drawBanner(); 
+  drawBanner();
+ 
+  if (isHighlightMode() && mousePressed) {
+    getCurrentHighLight().add(new PVector(mouseX, mouseY));
+  } 
+  
+  drawHighlights(); 
   
   if (ticks % 500 == 0) {
     randomBackground();  
   }
+  
+  text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
 }
 
   public float getX(float x) {
@@ -126,9 +179,109 @@ public void draw() {
   }
 
 
+ArrayList<HighLight> highlights;
+HighLight currentHighLight;
+
+public void setupHighLights() {
+  highlights = new ArrayList<HighLight>();
+}
+
+public void drawHighlights() {
+  for (HighLight h : highlights) {
+    if (h == currentHighLight) h.highlight();
+    h.draw();
+  }  
+}
+
+  public HighLight getCurrentHighLight() {
+    if (currentHighLight == null) {
+      currentHighLight = new HighLight();
+      highlights.add(currentHighLight);
+    }  
+    
+    return currentHighLight;
+  }
+
+  public void highLightMousePressed() {
+    //getCurrentHighLight().add(new PVector(mouseX, mouseY)); 
+   currentHighLight = null; 
+  }
+  
+  public boolean highLightKeyPressed(char c) {
+    switch (key) {
+      case 'd':
+        getCurrentHighLight().pop();
+        return true;
+      case '+':
+      case '=':
+        getCurrentHighLight().thickness += 1;
+        return true;
+      case '-':
+      case '_':
+        getCurrentHighLight().thickness = max(getCurrentHighLight().thickness - 1, 1);
+        return true;
+      case 'c':
+        getCurrentHighLight().myColor = randomColor();
+        return true;
+      
+    }
+    
+    return false;
+  }
 
 
 
+public class HighLight {
+  ArrayList<PVector> points;
+  int myColor;
+  int thickness;
+
+  public HighLight() {
+    points = new ArrayList();
+    colorMode(RGB);
+    myColor = color(255);
+    thickness = 3;
+  }  
+  
+  public void add(PVector p) {
+    points.add(p);  
+  }
+  
+  public void pop() {
+    if (points.size()>0) points.remove(points.size()-1);  
+  }
+  
+  public void drawLines() {
+    PVector op = null;
+    for (PVector p : points) {
+      if (op != null) line(p,op);
+      op = p;
+    }
+
+  }
+  
+  public void highlight() {
+    colorMode(RGB);
+    strokeWeight(thickness + 2);
+    color(255);
+    drawLines();
+    strokeWeight(1); 
+    
+    strokeWeight(thickness + 1);
+    color(0);
+    drawLines();
+    strokeWeight(1);  
+    
+  }
+  
+  public void draw() {
+    strokeWeight(thickness);
+    color(myColor);
+    drawLines();
+    strokeWeight(1);  
+  }
+  
+}
 
 PFont ocr = createFont("OCRAStd", 12);
 String bannerString = "     \"Mapping The Complex\"    June 17-19     \"Mapping The Complex\"";
@@ -334,6 +487,19 @@ float friction = 1.0f;
 float backAlpha = 255;
 int  backColor = color(0);
 
+public boolean isHighlightMode() {
+  return FOCUSMODES[focus].equals("Highlight Mode");  
+}
+
+public static final String[] FOCUSMODES = {
+  "Mask Mode",
+  "Highlight Mode"
+};
+
+public static final int FIRST_FOCUS = 0;
+public static final int LAST_FOCUS = FOCUSMODES.length-1;
+int focus = FIRST_FOCUS;
+
 public static final String[] MASKMODES = {
   "Rectangle",
   "Triangle"
@@ -345,6 +511,8 @@ int maskmode = FIRST_MASKMODE;
 
 
 public void keyPressed() {
+  if (highLightKeyPressed(key)) return;
+  
   switch(key) {
     case 'b':
       drawbackground = !drawbackground;
@@ -383,6 +551,14 @@ public void keyPressed() {
     case 'f':
         letterFont = randomFont();
         break;
+    case 'h':
+      focus = focus + 1;
+      if (focus>LAST_FOCUS) focus = FIRST_FOCUS;
+      break;
+    case 'H':
+      focus = focus - 1;
+      if (focus<FIRST_FOCUS) focus = LAST_FOCUS;
+      break;
     case 'n':
       drawfilter = !drawfilter;
       break;
@@ -431,6 +607,13 @@ public void keyPressed() {
     case 'i':
       drawimage = !drawimage;
       break;
+      
+    case '1':
+      saveState("last.yaml");
+      break;
+    case '2':
+      loadState("last.yaml", this);
+      break;
     case ';':
       maxSpeed *= 1.01f;
       println("Maxspeed: " + maxSpeed);
@@ -448,6 +631,10 @@ public void keyPressed() {
     case 'M':
       maskmode += 1;
       if (maskmode > LAST_MASKMODE) maskmode = FIRST_MASKMODE;
+      break;
+    case ESC:
+      saveState("last.yaml");
+      exit();
       break;
     
     default:
@@ -495,9 +682,11 @@ public void randomWords() {
     i+=1;
   }
   
+  /*
   for (int j=0; j<50; j++) {
     letters.add(new TriangleShapes(' '));  
   }
+  */
  
 }
 
@@ -733,6 +922,47 @@ public void masksMousePressed() {
   }
 }
 
+   public RectMask createRectMask(Map<String, Object> map) {
+      RectMask mask = new RectMask();
+      if (map.containsKey("x")) {
+        mask.x = ((Double)map.get("x")).floatValue() * width;
+      }  
+      if (map.containsKey("y")) {
+        mask.y = ((Double)map.get("y")).floatValue() * height;
+      }  
+      if (map.containsKey("h")) {
+        mask.h = ((Double)map.get("h")).floatValue() * height;
+      }  
+      if (map.containsKey("w")) {
+        mask.w = ((Double)map.get("w")).floatValue() * width;
+      }  
+      
+      return mask;
+    }
+
+  public TriangleMask createTriangleMask(Map<String, Object> map) {
+    TriangleMask mask = new TriangleMask();
+
+    if (map.containsKey("p0")) {
+      float x = ((Double)((List)map.get("p0")).get(0)).floatValue() * width; 
+      float y = ((Double)((List)map.get("p0")).get(1)).floatValue() * height;
+      mask.points[0] = new PVector(x,y);
+    } 
+    if (map.containsKey("p1")) {
+      float x = ((Double)((List)map.get("p1")).get(0)).floatValue() * width; 
+      float y = ((Double)((List)map.get("p1")).get(1)).floatValue() * height;
+      mask.points[1] = new PVector(x,y);
+    } 
+    if (map.containsKey("p2")) {
+      float x = ((Double)((List)map.get("p2")).get(0)).floatValue() * width; 
+      float y = ((Double)((List)map.get("p2")).get(1)).floatValue() * height;
+      mask.points[2] = new PVector(x,y);
+    } 
+   
+    return mask; 
+  }
+
+
 // -------------------------------------
 
 abstract class Mask {
@@ -760,12 +990,22 @@ abstract class Mask {
     public PVector[] getPoints() {
       return null;  
     };
+    
+    public Map<String, Object> represent() {
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      return map;
+    }
 }
 
 
 class RectMask extends Mask {
   float x,y,w,h;
 
+  public RectMask() {
+    
+  }
+  
   public RectMask(PointBuffer pts) {
     PVector np1 = pts.pop();
     PVector np2 = pts.pop();
@@ -810,10 +1050,28 @@ class RectMask extends Mask {
     return pts;
   } 
   
+   public Map<String, Object> represent() {
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      map.put("type", "RectMask");
+
+      map.put("x", x/width);
+      map.put("y", y/height);
+      map.put("w", w/width);
+      map.put("h", h/height);
+        
+      return map;
+    }
+    
+
 }
 
 class TriangleMask extends Mask {
   PVector[] points;
+
+  public TriangleMask() {
+    points = new PVector[3];    
+  }
 
   public TriangleMask(PointBuffer pts) {
     points = new PVector[3];
@@ -882,13 +1140,41 @@ class TriangleMask extends Mask {
     return (u > 0) && (v > 0) && (u + v < 1); 
   }
   
+     public Map<String, Object> represent() {
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      Float[] a;
+      
+      int i=0;
+      
+      map.put("type", "TriangleMask");
+      
+      
+      for (PVector p : points) {
+        a = new Float[2];
+        a[0] = p.x / width;
+        a[1] = p.y / height;
+        
+        map.put("p"+i, a);
+        i+=1;
+      }
+      
+        
+      return map;
+    }
+
 }
 
 
 
 
 public void mousePressed() {
-  masksMousePressed();  
+  if (FOCUSMODES[focus].equals("Mask Mode")) {
+    masksMousePressed();  
+  } else if (FOCUSMODES[focus].equals("Highlight Mode")) {
+    highLightMousePressed();  
+  }
+    
 }
 
 
@@ -949,6 +1235,192 @@ class PointBuffer {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Yaml yaml;
+
+public void setupState() {
+  DumperOptions options = new DumperOptions();
+  options.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
+
+  yaml = new Yaml(
+  new Loader(new FacadeConstructor()), 
+  new Dumper(new FacadeRepresenter(), 
+  options));
+}
+
+public void saveState(String fname) {
+  try {
+    FileWriter fw = new FileWriter(new File(dataPath(fname)));
+    fw.write(yaml.dump(SFx_facade.this));
+    fw.close();
+  } 
+  catch (IOException e) {
+    println("Failed to save state: " + fname);
+    e.printStackTrace(); 
+    return;
+  }
+}
+
+public void loadState(String fname, SFx_facade facade) {
+  FileReader fr;
+  try {
+    fr = new FileReader(new File(dataPath(fname)));
+    
+    //List<Object> data = (List<Object>) yaml.load(fr);
+    Object datum = yaml.load(fr);			
+    //for (Object datum : data) {
+      if (datum instanceof FacadeState) {
+	FacadeState state = (FacadeState) datum;
+					
+					
+	if (facade != null && state != null) {
+  	  state.applyTo(facade);
+	} else {
+	  System.out.println("Facade not found: '" + state.getName() + "'");
+	}
+      }
+    //}
+  } catch (FileNotFoundException e) {
+    e.printStackTrace();
+  } catch (NullPointerException e) {
+    e.printStackTrace();
+    System.out.println("Problem loading.  Trying to ignore...");
+  }
+
+}
+
+
+
+public class FacadeRepresenter extends Representer {
+  public FacadeRepresenter() {
+    this.representers.put(SFx_facade.class, new RepresentFacade());
+    this.representers.put(RectMask.class, new RepresentMask());
+    this.representers.put(TriangleMask.class, new RepresentMask());
+  }
+
+  private class RepresentFacade implements Represent {
+    public Node representData(Object data) {
+      SFx_facade facade = (SFx_facade) data;
+      Map<String, Object> map = new HashMap<String, Object>();
+
+      map.put("name", facade.name); 
+      
+      map.put("masks", masks);  
+      
+      return representMapping("!FacadeState", map, true);
+    }
+  }
+  
+  private class RepresentMask implements Represent {
+    public Node representData(Object data) {
+      Map<String, Object> map = new HashMap<String, Object>();
+
+      Mask mask = (Mask) data;
+           
+      return representMapping("!FacadeMask", mask.represent(), true);
+    }
+  }
+}
+
+public class FacadeConstructor extends Constructor {
+  public FacadeConstructor() {
+    this.yamlConstructors.put("!FacadeState", new ConstructFacade());
+    this.yamlConstructors.put("!FacadeMask", new ConstructMask());
+  }
+
+  private class ConstructFacade extends AbstractConstruct {
+    public Object construct(Node node) {
+        Map val = constructMapping((MappingNode) node);
+        return new FacadeState(val);
+      }
+  }
+  private class ConstructMask extends AbstractConstruct {
+    public Object construct(Node node) {
+        Map val = constructMapping((MappingNode) node);
+        if (val.containsKey("type") && val.get("type").equals("RectMask")) {
+          masks.add(createRectMask(val));
+        } else if (val.containsKey("type") && val.get("type").equals("TriangleMask")) {
+          masks.add(createTriangleMask(val));          
+        } else {
+          for (Object o : val.keySet()) {
+           println("key: " + o + " value: " + val.get(o)); 
+          }
+        }
+        return null;
+      }
+  }
+}
+
+public class FacadeState {
+  Map<String, Object> map;
+
+  public FacadeState(Map val) {
+      this.map = val;
+    }
+
+  public Integer getId() {
+    return (Integer) map.get("id");
+  }
+
+  public String getName() {
+    return (String) map.get("name");
+  }
+
+  public void applyTo(SFx_facade facade) {
+      if (map.containsKey("name")) facade.name = (String) map.get("name");
+
+      /*
+      if (map.containsKey("inPlay")) {
+       node.inPlay((Boolean) map.get("inPlay"));
+       }
+       if (map.containsKey("locked")) {
+       node.setLocked((Boolean) map.get("locked"));
+       }
+       if (map.containsKey("x")) {
+       node.setTargetX(((Double) map.get("x")).floatValue() * viewer.getGraphWindowGeometry().width());
+       }
+       if (map.containsKey("y")) {
+       node.setTargetY(((Double) map.get("y")).floatValue() * viewer.getGraphWindowGeometry().height());
+       }
+       if (map.containsKey("panel")) {
+       node.getPanel().setHidden(!((Boolean) map.get("panel")));
+       }
+       if (map.containsKey("PARAMETERS")) {
+       node.getParams().setupParams((Map<String, Object>) map.get("PARAMETERS"));
+       }
+       if (map.containsKey("COLOR_CHILDREN_BY")) {
+       node.colorChildrenBy = viewer.getDataStore().getEntityNode((String) map.get("COLOR_CHILDREN_BY"));
+       }
+       */
+    }
+}
+
+
+
+
+public void line(PVector p1, PVector p2) {
+  line(p1.x, p1.y, p2.x, p2.y);  
+}
 
 
 //close the class

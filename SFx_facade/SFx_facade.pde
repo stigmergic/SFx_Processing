@@ -41,13 +41,16 @@
 
 public class SFx_facade extends PApplet {
 long ticks = 0;
+String name = "SFx_facade v0.1";
+//String lastName = 
 
 void setup() {
   //float aspect = 2.6666666666666665;
   //float aspect = 1440.0/900.0;
+  float aspect = 2048/768.0;
   
   
-  float aspect = 1280.0/800;
+  //float aspect = 1280.0/800;
   int w = (int) (screen.width * 1);
   size(w, int(w/aspect));
   
@@ -60,8 +63,12 @@ void setup() {
   entrance();
   
   setupMasks();
+  setupHighLights();
   
   img = loadImage("Facade3.jpg");
+  
+  setupState();
+  loadState("last.yaml", this);
 }
 
 void draw() {
@@ -69,7 +76,11 @@ void draw() {
   if (drawimage) drawImage(img);
   if (drawfilter) {
     noStroke();
-    fill(backColor,backAlpha);
+    if (drawimage) {
+      fill(backColor,100);
+    } else {
+      fill(backColor,backAlpha);      
+    }
     rect(0,0,width,height);
   }
   
@@ -91,11 +102,19 @@ void draw() {
   float w = textWidth(s);
   text(s,width-w, height);
   ticks += 1;
-  drawBanner(); 
+  drawBanner();
+ 
+  if (isHighlightMode() && mousePressed) {
+    getCurrentHighLight().add(new PVector(mouseX, mouseY));
+  } 
+  
+  drawHighlights(); 
   
   if (ticks % 500 == 0) {
     randomBackground();  
   }
+  
+  text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
 }
 
   float getX(float x) {
@@ -105,8 +124,5 @@ void draw() {
   float getY(float y) {
     return y*height;
   }
-
-
-
 
 
