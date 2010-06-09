@@ -87,7 +87,7 @@ public class FacadeRepresenter extends Representer {
       SFx_facade facade = (SFx_facade) data;
       Map<String, Object> map = new HashMap<String, Object>();
 
-      map.put("name", facade.name); 
+      map.put("name", facade.thisVersion); 
       
       map.put("masks", masks);  
       

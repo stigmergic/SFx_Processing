@@ -41,7 +41,8 @@
 
 public class SFx_facade extends PApplet {
 long ticks = 0;
-String name = "SFx_facade v0.1";
+final String thisVersion = "SFx_facade v0.2";
+String name = thisVersion;
 //String lastName = 
 
 void setup() {
