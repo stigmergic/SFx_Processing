@@ -20,7 +20,7 @@ OscP5 oscP5;
 
 
 void setup() {
-  size(screen.width/10,screen.height/10);
+  size(screen.width/4,screen.height/4);
   
   strokeWeight(2);
   frameRate(25);

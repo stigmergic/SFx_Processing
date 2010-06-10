@@ -2,7 +2,7 @@
 PFont ocr = createFont("OCRAStd", 12);
 String bannerString = "     \"Mapping The Complex\"    June 17-19     \"Mapping The Complex\"";
 float bannerWidth = 100;
-float movingBannerX, movingBannerY;
+float movingBannerX = width/2, movingBannerY = height/2;
 
 void setupBanner() {
   bannerWidth = getX(0.385);

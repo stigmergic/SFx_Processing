@@ -72,8 +72,11 @@ void keyPressed() {
     case 's':
       drawdebug = !drawdebug;
       break;
+    case 'a':
+      letterFont.incrType();
+      break;
     case 'f':
-        letterFont = randomFont();
+        letterFont = nextFont();
         break;
     case 'h':
       focus = focus + 1;

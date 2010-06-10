@@ -56,8 +56,10 @@ void setup() {
   size(w, int(w/aspect));
   
   setupFonts();  
-    
-  textFont(randomFont(), textHeight);
+  
+  
+  letterFont = randomFont();  
+  textFont(letterFont.font, textHeight);
   
   randomWords();
   setupEntrances();
@@ -73,6 +75,8 @@ void setup() {
 }
 
 void draw() {
+  //randomBackground();
+  
   if (drawbackground) background(0);
   if (drawimage) drawImage(img);
   if (drawfilter) {
@@ -85,23 +89,33 @@ void draw() {
     rect(0,0,width,height);
   }
   
-  textFont(letterFont, textHeight);
+  textFont(letterFont.font, textHeight);
   for (Letter l : letters) {
     l.step();
+    l.drawDrop();
+  }
+  
+  for (Letter l : letters) {
     l.draw();
   }
 
   if (drawmasks) drawMasks();
   repelMasks();
 
+
+  if (drawdebug) {
   textSize(24);
   fill(255);
   text("X: " + float(mouseX)/width + ", Y: " + float(mouseY)/height, 0,height); 
   text("BACKGROUND RGB: " + red(backColor) + ", " + green(backColor) + ", " + blue(backColor), 0, height - 40); 
   text("BACKGROUND HSB: " + hue(backColor) + ", " + saturation(backColor) + ", " + brightness(backColor), 0, height - 20); 
+  
+  text("FONT: " + letterFont.getName(), width/2, height-40);
   String s = MASKMODES[maskmode];
   float w = textWidth(s);
   text(s,width-w, height);
+  }
+  
   ticks += 1;
   drawBanner();
  
@@ -115,7 +129,7 @@ void draw() {
     randomBackground();  
   }
   
-  text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
+  //text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
 }
 
   float getX(float x) {

@@ -85,10 +85,27 @@ public class Letter {
     fontSize = textHeight;
   }
 
+  void drawDrop() {
+        pushMatrix();
+    translate(x+w/2,y-h/2);
+    rotate(a);
+        textSize(fontSize); 
+
+    if (letterFont.isDropShadow()) {
+      fill(0);
+      text(letter, -w/2 + cos(ticks/10.0) * fontSize/4, h/2 + sin(ticks/100.0) * fontSize/4);  
+    }
+       
+
+    popMatrix();
+
+
+  }
+
   void draw() {
     stroke(255);
     noFill();
-    if (drawdebug) rect(x,y,w,-h);
+    if (letterFont.isDrawBox()) rect(x,y,w,-h);
 
     pushMatrix();
     translate(x+w/2,y-h/2);
@@ -97,7 +114,8 @@ public class Letter {
     //noFill();
     fill(0);
     stroke(100,255,255);
-    if (drawdebug) rect(-w/2,-h/2,w,h);
+    if (letterFont.isDrawBox()) rect(-w/2,-h/2,w,h);
+    if (letterFont.isCircles()) ellipse(0,0,w,h);
 
     //fill(0,0,50);
     //text(letter, maxSpeed, maxSpeed); 
@@ -108,6 +126,8 @@ public class Letter {
 
 
     popMatrix();
+    
+    
   } 
 
   void step() {
