@@ -112,6 +112,7 @@ void keyPressed() {
       break;
     case 'f':
         fonts.letterFont = fonts.nextFont();
+        fonts.setFont();
         break;
     case 'h':
       focus = focus + 1;

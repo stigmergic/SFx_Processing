@@ -40,18 +40,29 @@ public Fonts() {
   fonts = new ArrayList<LetterFont>();
   fontMap = new HashMap<String, LetterFont>();
   
-  LetterFont lf;
   for (String name:fontNames) {
-      lf = new LetterFont(name, LETTERBOX);
-      fonts.add(lf);
-      fontMap.put(name, lf);
+      get(name);
   }  
  
   letterFont = randomFont();
 }
 
+
 void setFont() {
   textFont(letterFont.font, textHeight);
+}
+
+LetterFont get(String name) {
+  LetterFont lf;
+
+  if (!fontMap.containsKey(name)) {
+      lf = new LetterFont(name, LETTERBOX);
+      fonts.add(lf);
+      fontMap.put(name, lf);
+      println("adding font: " + name);
+  }  
+  
+  return fontMap.get(name);
 }
 
 LetterFont randomFont() {
@@ -73,19 +84,25 @@ Map represent() {
   }  
   return map;
 }
+
+void apply(Map map) {
+  Map<String, Map<String, Object>> fMap = (Map<String, Map<String, Object>>) map;
+  LetterFont lf;
+  
+  for (String name : fMap.keySet()) {
+    println("reading font: " + name);
+    lf = get(name);
+    lf.type = (Integer) (fMap.get(name).get("type"));
+  }  
+}
 }
 
 public class LetterFont {
-  String name;
   PFont font;
   int type;
-  
-
-  
 
   public LetterFont(String _name, int _type) {
-    name = _name;
-    font = createFont(name, 32);
+    font = createFont(_name, 32);
     type = _type;
   }  
   
@@ -113,7 +130,6 @@ public class LetterFont {
   public Map<String, Object> represent() {
     HashMap<String, Object> map = new HashMap<String, Object>();
   
-    map.put("name", name);
     map.put("type", type);
   
     return map;  

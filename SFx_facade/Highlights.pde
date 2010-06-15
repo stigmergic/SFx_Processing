@@ -61,11 +61,23 @@ public void drawHighlights() {
   
     return list;  
   }
+  
+  public void apply(List list) {
+    for (Object o : list) {
+      Map<String, Object> map = (Map<String, Object>) o;
+      HighLight h = new HighLight();
+      if (map.containsKey("myColor")) h.myColor = (Integer) map.get("myColor");
+      if (map.containsKey("thickness")) h.thickness = (Integer) map.get("thickness");
+      if (map.containsKey("points")) h.points = (List<PVector>) map.get("points");
+      highlights.add(h);
+      
+    }  
+  }
 }
 
 
 public class HighLight {
-  ArrayList<PVector> points;
+  List<PVector> points;
   color myColor;
   int thickness;
 
@@ -141,4 +153,6 @@ public class HighLight {
     map.put("points", points);
     return map; 
   } 
+  
+  
 }

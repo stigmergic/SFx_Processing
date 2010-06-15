@@ -97,7 +97,9 @@ public class FacadeRepresenter extends Representer {
       map.put("bannerWidth", bannerWidth); 
       map.put("bannerColor", bannerColor);      
       map.put("masks", masks);
-      map.put("params", states);  
+      map.put("params", states);
+      map.put("fonts", fonts);
+      map.put("highlights", highlights);  
       
       return representMapping("!FacadeState", map, true);
     }
@@ -137,7 +139,7 @@ public class FacadeRepresenter extends Representer {
 
       Highlights highlights = (Highlights) data;
            
-      return representList("!Highlights", highlights.represent(), true);
+      return representSequence("!Highlights", highlights.represent(), true);
     }
   }
 
@@ -148,6 +150,8 @@ public class FacadeConstructor extends Constructor {
     this.yamlConstructors.put("!FacadeState", new ConstructFacade());
     this.yamlConstructors.put("!FacadeMask", new ConstructMask());
     this.yamlConstructors.put("!ParamStates", new ConstructParamStates());
+    this.yamlConstructors.put("!Fonts", new ConstructFonts());
+    this.yamlConstructors.put("!Highlights", new ConstructHighlights());
   }
 
   private class ConstructParamStates extends AbstractConstruct {
@@ -155,6 +159,22 @@ public class FacadeConstructor extends Constructor {
       public Object construct(Node node) {
         Map val = constructMapping((MappingNode) node);
         states.apply(val);
+        return states;
+      }
+  }
+  private class ConstructFonts extends AbstractConstruct {
+    @SuppressWarnings("unchecked")
+      public Object construct(Node node) {
+        Map val = constructMapping((MappingNode) node);
+        fonts.apply(val);
+        return states;
+      }
+  }
+  private class ConstructHighlights extends AbstractConstruct {
+    @SuppressWarnings("unchecked")
+      public Object construct(Node node) {
+        List val = constructSequence((SequenceNode) node);
+        highlights.apply(val);
         return states;
       }
   }
