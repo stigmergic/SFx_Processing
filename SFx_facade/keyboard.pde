@@ -1,15 +1,20 @@
-boolean resolve = false;
-boolean drawimage = true;
-boolean drawmasks = true;
-boolean drawdebug = false;
-boolean drawfilter = true;
-boolean drawbackground = true;
-boolean domouse = true;
+
+void setupKeyboard() {
+
+  states.set("drawimage", true);
+  states.set("drawmasks", true);
+  states.set("drawdebug", false);
+  states.set("drawfilter", true);
+  states.set("drawbackground", true);
+  states.set("domouse", true);
+}
 
 float maxSpeed = 5.0;
 float friction = 1.0;
 float backAlpha = 255;
 color  backColor = color(0);
+color dropColor = color(0);
+int resolution = 0;
 
 public boolean isHighlightMode() {
   return FOCUSMODES[focus].equals("Highlight Mode");  
@@ -33,13 +38,27 @@ public static final int FIRST_MASKMODE = 0;
 public static final int LAST_MASKMODE = MASKMODES.length-1;
 int maskmode = FIRST_MASKMODE;
 
+public static final int SOLID_RESOLUTION = 0;
+public static final int WAVE_RESOLUTION = 1;
+public static final int SHAKY_RESOLUTION = 2;
+public static final int ROTAIONAL_RESOLUTION = 4;
+public static final int BLINKING_RESOLUTION = 8;
+public static final int LAST_RESOLUTION = 15;
+
+
+
 
 void keyPressed() {
-  if (highLightKeyPressed(key)) return;
+  if (isHighlightMode() && highlights.highLightKeyPressed(key)) return;
   
   switch(key) {
+    case 't':
+      resolution += 1;
+      if (resolution>LAST_RESOLUTION) resolution =0;
+      break;
+    
     case 'b':
-      drawbackground = !drawbackground;
+      flip("drawbackground");
       break;
 
     case 'v':
@@ -48,7 +67,11 @@ void keyPressed() {
 
    case 'V':
       for (Letter l : letters) {
-        l.co = color(255);  
+        if (l.co == color(0)) {
+          l.co = color(255);  
+        } else {
+          l.co = color(0);  
+        }
       }
       break;
 
@@ -62,21 +85,33 @@ void keyPressed() {
       }
       break;
 
+    case 'x':
+      if (dropColor == color(0)) {
+        dropColor = color(255);
+      } else {
+        dropColor = color(0);
+      }
+      break;
+    case 'X':
+      dropColor = randomColor();
+      break;
+      
+
     case 'w':
       randomWords();
       break;
 
     case 'm':
-      drawmasks = !drawmasks;
+      flip("drawmasks");
       break;
     case 's':
-      drawdebug = !drawdebug;
+      flip("drawdebug");
       break;
     case 'a':
-      letterFont.incrType();
+      fonts.letterFont.incrType();
       break;
     case 'f':
-        letterFont = nextFont();
+        fonts.letterFont = fonts.nextFont();
         break;
     case 'h':
       focus = focus + 1;
@@ -87,7 +122,10 @@ void keyPressed() {
       if (focus<FIRST_FOCUS) focus = LAST_FOCUS;
       break;
     case 'n':
-      drawfilter = !drawfilter;
+      flip("drawfilter");
+      break;
+    case 'N':
+      flip("changingbackground");
       break;
     case '-':
       bannerWidth -= 5;
@@ -112,6 +150,7 @@ void keyPressed() {
       break;
       
     case 'd':
+      println("delete point");
       if (mousePoints.hasPoints()) {
         mousePoints.pop();
       } else {
@@ -126,13 +165,13 @@ void keyPressed() {
       
       break;
     case 'r':
-      resolve = !resolve;
+      flip("resolve");
       break;
     case 'e':
       entrance();
       break;
     case 'i':
-      drawimage = !drawimage;
+      flip("drawimage");
       break;
       
     case '1':

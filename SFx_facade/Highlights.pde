@@ -1,7 +1,11 @@
-ArrayList<HighLight> highlights;
-HighLight currentHighLight;
+Highlights highlights;
 
-public void setupHighLights() {
+public class Highlights {
+ArrayList<HighLight> highlights;
+HighLight currentHighLight = null;
+float minHighlightDist = 5;
+
+public  Highlights() {
   highlights = new ArrayList<HighLight>();
 }
 
@@ -47,7 +51,17 @@ public void drawHighlights() {
     
     return false;
   }
-
+  
+  public List represent() {
+    ArrayList<Map> list = new ArrayList<Map>();
+    
+    for (HighLight h : highlights) {
+      list.add(h.represent());  
+    }
+  
+    return list;  
+  }
+}
 
 
 public class HighLight {
@@ -63,7 +77,26 @@ public class HighLight {
   }  
   
   public void add(PVector p) {
+    if (points.size()<2) {
+      points.add(p);
+      return;
+    }
+    
+    PVector p1 = points.get(points.size()-2);
+    PVector p2 = points.get(points.size()-1);
+    PVector p3 = p;
+    
+    float d1 = dist(p1,p2);
+    float d2 = dist(p1,p3);
+    
+    
+    if (d2 < highlights.minHighlightDist || (d1/d2) < 0.5) {
+       pop();     
+    }
+
     points.add(p);  
+    
+    System.out.println("points: " + points.size());
   }
   
   public void pop() {
@@ -75,6 +108,7 @@ public class HighLight {
     for (PVector p : points) {
       if (op != null) line(p,op);
       op = p;
+      //ellipse(p.x,p.y,5,5);
     }
 
   }
@@ -99,5 +133,12 @@ public class HighLight {
     drawLines();
     strokeWeight(1);  
   }
-  
+ 
+  public Map represent() {
+    HashMap<String, Object> map = new HashMap<String, Object>();
+    map.put("myColor", myColor);
+    map.put("thickness", thickness);
+    map.put("points", points);
+    return map; 
+  } 
 }

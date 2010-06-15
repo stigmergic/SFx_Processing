@@ -81,31 +81,36 @@ public class Letter {
     co = randomColor();
 
     w = textWidth(letter);
-    h = textHeight;
-    fontSize = textHeight;
+    h = fonts.textHeight;
+    fontSize = fonts.textHeight;
   }
 
   void drawDrop() {
-        pushMatrix();
-    translate(x+w/2,y-h/2);
+    if (letter.equals(" ")) return;
+    pushMatrix();
+    textSize(fontSize * 1.125); 
+    translate(x+w/2+ cos(ticks/10.0) * fontSize/4* 1.125,y-h/2+ sin(ticks/100.0) * fontSize/4* 1.125);
     rotate(a);
-        textSize(fontSize); 
 
-    if (letterFont.isDropShadow()) {
-      fill(0);
-      text(letter, -w/2 + cos(ticks/10.0) * fontSize/4, h/2 + sin(ticks/100.0) * fontSize/4);  
+    if (fonts.letterFont.isDropShadow()) {
+      fill(dropColor);
+      text(letter, -w/2 , h/2 );  
     }
        
-
     popMatrix();
-
-
   }
 
   void draw() {
+    if (letter.equals(" ")) return;
+
+    if ((resolution & BLINKING_RESOLUTION) == BLINKING_RESOLUTION) {
+      if (random(1)<0.5) return;  
+    }
+
+    
     stroke(255);
     noFill();
-    if (letterFont.isDrawBox()) rect(x,y,w,-h);
+    if (fonts.letterFont.isDrawBox()) rect(x,y,w,-h);
 
     pushMatrix();
     translate(x+w/2,y-h/2);
@@ -114,8 +119,8 @@ public class Letter {
     //noFill();
     fill(0);
     stroke(100,255,255);
-    if (letterFont.isDrawBox()) rect(-w/2,-h/2,w,h);
-    if (letterFont.isCircles()) ellipse(0,0,w,h);
+    if (fonts.letterFont.isDrawBox()) rect(-w/2,-h/2,w,h);
+    if (fonts.letterFont.isCircles()) ellipse(0,0,w,h);
 
     //fill(0,0,50);
     //text(letter, maxSpeed, maxSpeed); 
@@ -124,13 +129,16 @@ public class Letter {
     fill(co);
     text(letter, -w/2, h/2);
 
-
     popMatrix();
     
-    
+    for (Letter l : letters) {
+      if (l.equals(this)) continue;
+      l.repel(this);  
+    }   
   } 
 
   void step() {
+    
     if (nn>0) {
       ndx /= nn; 
       ndy /= nn; 
@@ -148,16 +156,49 @@ public class Letter {
       ndy = dy;
     }
     
-    fontSize = textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 1.55;
+    if ((resolution & WAVE_RESOLUTION) == WAVE_RESOLUTION) {
+      fontSize = fonts.textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 1.55;
+    } else {
+      fontSize = fonts.textHeight;  
+    }
+    
+    if ((resolution & SHAKY_RESOLUTION) == SHAKY_RESOLUTION) {
+      x += random(10)-5;
+      y += random(10)-5;
+    }
+    if ((resolution & ROTAIONAL_RESOLUTION) == ROTAIONAL_RESOLUTION) {
+      a += 0.1;
+    }
+    
     textSize(fontSize);
     w = textWidth(letter);
+    if (letter.equals(" ")) w *= 3;
     h = fontSize;
     
     move();
   }
+  
+  void repel(Letter l) {
+    if ((l.x + l.w < x 
+        || (l.y-l.h)>y + h 
+        || (l.x ) > (x + w)
+        || (l.y) < (y ))) return;
+        
+    float cx = x + w/2;
+    float cy = y - h/2;
+    float lx = l.x + l.w/2;
+    float ly = l.y - l.h/2;
+    
+    float f = atan2(ly-cy,lx-cx);
+    l.ndx += cos(f) *10;
+    l.ndy += sin(f) *10;
+    l.nn += 1;
+    
+  } 
+
 
   void move() {
-    if (resolve) {
+    if (is("resolve")) {
       float nx = 0;
       float ny = 0; 
       float na = 0;
@@ -186,7 +227,10 @@ public class Letter {
       nx /= 2;
       ny /= 2;
       na /= 2;
-      a = na;
+      
+      if ((resolution & ROTAIONAL_RESOLUTION) != ROTAIONAL_RESOLUTION) {
+        a = na;
+      }
 
       if (dist(nx,ny,x,y)>curVel) {
         float d = atan2(ny-y, nx-x);     
@@ -242,8 +286,8 @@ public class TriangleShapes extends Letter {
   }
   
   void draw() {
-    fill(0);
-    stroke(255);
+   fill(0);
+   stroke(255);
    beginShape();
    vertex(x,y);
    vertex(x+offX1, y + offY2);

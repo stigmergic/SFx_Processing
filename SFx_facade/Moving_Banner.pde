@@ -1,8 +1,10 @@
 
 PFont ocr = createFont("OCRAStd", 12);
-String bannerString = "     \"Mapping The Complex\"    June 17-19     \"Mapping The Complex\"";
+String bannerString = "     \"Mapping The Complex\"    June 17-19 2010    \"Mapping The Complex\"";
 float bannerWidth = 100;
 float movingBannerX = width/2, movingBannerY = height/2;
+
+color bannerColor = color(255);
 
 void setupBanner() {
   bannerWidth = getX(0.385);
@@ -11,6 +13,7 @@ void setupBanner() {
 }
 
 void drawBanner() {
+  fill(bannerColor);
   textFont(ocr, 16);
   String s2 = bannerString + bannerString;
   int i = (int) (ticks/8 % (bannerString.length()));

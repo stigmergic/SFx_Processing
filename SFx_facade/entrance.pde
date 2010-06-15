@@ -17,8 +17,8 @@ public void setupEntrances() {
 }
 
 public void entrance() {
-  //Entrance e = entrances.get(int(random(entrances.size())));
-  Entrance e = entrances.get(3);
+  Entrance e = entrances.get(int(random(entrances.size())));
+  //Entrance e = entrances.get(3);
   
   for (Letter l : letters) {
     e.position(l);
@@ -32,6 +32,9 @@ class Entrance {
   void position(Letter l) {
     l.x = getX(0.5);
     l.y = getY(0.25);
+    l.a = 0;
+    l.da = 0;
+    
     float f = random(2*PI);
     l.dx = cos(f);
     l.dy = sin(f); 
@@ -41,34 +44,43 @@ class Entrance {
 
 class EntranceBottom extends Entrance{
   void position(Letter l) {
+    super.position(l);
     l.x = random(width);
     l.y = bottom;
-    l.dx = 0;
-    l.dy = -1;  
+    
+    float f = random(PI);
+    l.dx = cos(f);
+    l.dy = sin(f);  
   }   
 }
 
 class EntranceTop extends Entrance{
   void position(Letter l) {
+    super.position(l);
+
     l.x = random(width);
     l.y = top;  
+    
+    float f = random(PI) + PI;
+    l.dx = cos(f);
+    l.dy = sin(f);
   }   
 }
 
 class EntranceSides extends Entrance{
   void position(Letter l) {
+    super.position(l);
+
     float f = random(PI/2);
     if  (random(1)<0.5) {
       l.x = getX(0.0208);
       f = -f;
       l.dx = cos(f);
-      l.dy = sin(f);
-      
+      l.dy = sin(f);  
     } else {
       l.x = getX(0.9835);
       l.dx = cos(f + PI);
       l.dy = cos(f + PI);
-      
     }
     l.y = getY(0.2660);  
     l.curVel = 5;

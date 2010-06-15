@@ -1,41 +1,58 @@
 
-int textHeight = 36;
+Fonts fonts;
+
+public class Fonts {
 ArrayList<LetterFont> fonts;
+HashMap<String, LetterFont> fontMap;
+
 LetterFont letterFont;
 int currentFont = 0;
+int textHeight = 36;
 
-int LETTERBOX = 0;
-int NOLETTERBOX = 1;
-int CIRCLES = 2;
-int CIRCLES_AND_DROP = 3;
-int DROPSHADOW = 4;
-int FIRST_LETTER_TYPE = LETTERBOX;
-int LAST_LETTER_TYPE = DROPSHADOW;
+  int LETTERBOX = 0;
+  int NOLETTERBOX = 1;
+  int CIRCLES = 2;
+  int CIRCLES_AND_DROP = 3;
+  int DROPSHADOW = 4;
+  int FIRST_LETTER_TYPE = LETTERBOX;
+  int LAST_LETTER_TYPE = DROPSHADOW;
 
-void setupFonts() {
-   fonts = new ArrayList<LetterFont>();
 
-  fonts.add(new LetterFont("AmericanTypewriter-CondensedLight", LETTERBOX));
-  fonts.add(new LetterFont("HelveticaNeue-UltraLightItalic", LETTERBOX));
-  fonts.add(new LetterFont("EuphemiaUCAS", LETTERBOX));
-  fonts.add(new LetterFont("Cracked", LETTERBOX));
-  fonts.add(new LetterFont("Georgia-BoldItalic", LETTERBOX));
-  fonts.add(new LetterFont("OCRAStd", LETTERBOX));
-  fonts.add(new LetterFont("LithosPro-Black", LETTERBOX));
-  fonts.add(new LetterFont("AmericanTypewriter-Bold", LETTERBOX));
-  fonts.add(new LetterFont("Apple-Chancery", LETTERBOX));
-  fonts.add(new LetterFont("AppleCasual", LETTERBOX));
-  fonts.add(new LetterFont("Chalkboard-Bold", LETTERBOX));
-  fonts.add(new LetterFont("CooperBlackStd", LETTERBOX));
-  fonts.add(new LetterFont("HoboStd", LETTERBOX));
-  fonts.add(new LetterFont("MesquiteStd", LETTERBOX));
-  fonts.add(new LetterFont("StencilStd", LETTERBOX));
+
+String[] fontNames = {
+  "AmericanTypewriter-CondensedLight",
+"HelveticaNeue-UltraLightItalic",
+"EuphemiaUCAS",
+"Cracked",
+"Georgia-BoldItalic",
+"OCRAStd",
+"LithosPro-Black",
+"AmericanTypewriter-Bold",
+"Apple-Chancery",
+"AppleCasual",
+"Chalkboard-Bold",
+"CooperBlackStd",
+"HoboStd",
+"StencilStd"
+};
+
+public Fonts() {
+  fonts = new ArrayList<LetterFont>();
+  fontMap = new HashMap<String, LetterFont>();
   
-  //fonts.add(createFont("GiddyupStd", textHeight));
+  LetterFont lf;
+  for (String name:fontNames) {
+      lf = new LetterFont(name, LETTERBOX);
+      fonts.add(lf);
+      fontMap.put(name, lf);
+  }  
  
   letterFont = randomFont();
 }
 
+void setFont() {
+  textFont(letterFont.font, textHeight);
+}
 
 LetterFont randomFont() {
  currentFont = int(random(fonts.size()));
@@ -49,27 +66,39 @@ LetterFont nextFont() {
   return fonts.get(currentFont);
 }
 
-public class LetterFont {
+Map represent() {
+  HashMap<String, Map<String, Object>> map = new HashMap<String, Map<String, Object>>();
+  for (String name : fontMap.keySet()) {
+    map.put(name, fontMap.get(name).represent());  
+  }  
+  return map;
+}
+}
 
+public class LetterFont {
+  String name;
   PFont font;
   int type;
   
 
-  public LetterFont(String name, int _type) {
-    font = createFont(name, 36);
+  
+
+  public LetterFont(String _name, int _type) {
+    name = _name;
+    font = createFont(name, 32);
     type = _type;
   }  
   
   public boolean isDrawBox() {
-    return type == LETTERBOX;  
+    return type == fonts.LETTERBOX;  
   }
   
   public boolean isDropShadow() {
-    return type == DROPSHADOW || type == CIRCLES_AND_DROP;  
+    return type == fonts.DROPSHADOW || type == fonts.CIRCLES_AND_DROP;  
   }
   
   public boolean isCircles() {
-   return (type == CIRCLES) || (type == CIRCLES_AND_DROP); 
+   return (type == fonts.CIRCLES) || (type == fonts.CIRCLES_AND_DROP); 
   }
   
   public String getName() {
@@ -78,6 +107,15 @@ public class LetterFont {
   
   public void incrType() {
       type += 1;
-      if (type>LAST_LETTER_TYPE) type = FIRST_LETTER_TYPE;
+      if (type>fonts.LAST_LETTER_TYPE) type = fonts.FIRST_LETTER_TYPE;
+  }
+  
+  public Map<String, Object> represent() {
+    HashMap<String, Object> map = new HashMap<String, Object>();
+  
+    map.put("name", name);
+    map.put("type", type);
+  
+    return map;  
   }
 }

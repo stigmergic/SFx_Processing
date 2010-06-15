@@ -17,7 +17,7 @@ void drawMasks() {
     m.draw();
   }
 
-  if (domouse && mousePoints.hasPoints()) {
+  if (is("domouse") && mousePoints.hasPoints()) {
     noFill();
     stroke(255);
     mousePoints.draw(mouseX, mouseY);
@@ -34,7 +34,7 @@ void repelMasks() {
 
 
 void masksMousePressed() {
-  if (!domouse) return;
+  if (!is("domouse")) return;
   mousePoints.push(new PVector(mouseX, mouseY));
   
   if (isMouseMode("Rectangle") && mousePoints.size() == 2) { 

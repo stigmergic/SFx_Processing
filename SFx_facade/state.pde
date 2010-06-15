@@ -80,6 +80,10 @@ public class FacadeRepresenter extends Representer {
     this.representers.put(SFx_facade.class, new RepresentFacade());
     this.representers.put(RectMask.class, new RepresentMask());
     this.representers.put(TriangleMask.class, new RepresentMask());
+    this.representers.put(ParamStates.class, new RepresentParamStates());
+    this.representers.put(Fonts.class, new RepresentFonts());
+    this.representers.put(Highlights.class, new RepresentHighlights());
+      
   }
 
   private class RepresentFacade implements Represent {
@@ -87,9 +91,13 @@ public class FacadeRepresenter extends Representer {
       SFx_facade facade = (SFx_facade) data;
       Map<String, Object> map = new HashMap<String, Object>();
 
-      map.put("name", facade.thisVersion); 
-      
-      map.put("masks", masks);  
+      map.put("name", facade.thisVersion);
+      map.put("bannerX", movingBannerX);       
+      map.put("bannerY", movingBannerY);       
+      map.put("bannerWidth", bannerWidth); 
+      map.put("bannerColor", bannerColor);      
+      map.put("masks", masks);
+      map.put("params", states);  
       
       return representMapping("!FacadeState", map, true);
     }
@@ -104,12 +112,51 @@ public class FacadeRepresenter extends Representer {
       return representMapping("!FacadeMask", mask.represent(), true);
     }
   }
+
+  private class RepresentParamStates implements Represent {
+    public Node representData(Object data) {
+      Map<String, Object> map = new HashMap<String, Object>();
+
+      ParamStates states = (ParamStates) data;
+           
+      return representMapping("!ParamStates", states.represent(), true);
+    }
+  }
+  private class RepresentFonts implements Represent {
+    public Node representData(Object data) {
+      Map<String, Object> map = new HashMap<String, Object>();
+
+      Fonts fonts = (Fonts) data;
+           
+      return representMapping("!Fonts", fonts.represent(), true);
+    }
+  }
+  private class RepresentHighlights implements Represent {
+    public Node representData(Object data) {
+      Map<String, Object> map = new HashMap<String, Object>();
+
+      Highlights highlights = (Highlights) data;
+           
+      return representList("!Highlights", highlights.represent(), true);
+    }
+  }
+
 }
 
 public class FacadeConstructor extends Constructor {
   public FacadeConstructor() {
     this.yamlConstructors.put("!FacadeState", new ConstructFacade());
     this.yamlConstructors.put("!FacadeMask", new ConstructMask());
+    this.yamlConstructors.put("!ParamStates", new ConstructParamStates());
+  }
+
+  private class ConstructParamStates extends AbstractConstruct {
+    @SuppressWarnings("unchecked")
+      public Object construct(Node node) {
+        Map val = constructMapping((MappingNode) node);
+        states.apply(val);
+        return states;
+      }
   }
 
   private class ConstructFacade extends AbstractConstruct {
@@ -119,6 +166,7 @@ public class FacadeConstructor extends Constructor {
         return new FacadeState(val);
       }
   }
+
   private class ConstructMask extends AbstractConstruct {
     @SuppressWarnings("unchecked")
       public Object construct(Node node) {
@@ -156,6 +204,10 @@ public class FacadeState {
   @SuppressWarnings("unchecked")
     public void applyTo(SFx_facade facade) {
       if (map.containsKey("name")) facade.name = (String) map.get("name");
+      if (map.containsKey("bannerX")) facade.movingBannerX = ((Double) map.get("bannerX")).floatValue();
+      if (map.containsKey("bannerY")) facade.movingBannerY = ((Double) map.get("bannerY")).floatValue();
+      if (map.containsKey("bannerWidth")) facade.bannerWidth = ((Double) map.get("bannerWidth")).floatValue();
+      if (map.containsKey("bannerColor")) facade.bannerColor = ((Integer) map.get("bannerColor"));
 
       /*
       if (map.containsKey("inPlay")) {

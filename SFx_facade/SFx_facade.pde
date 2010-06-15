@@ -55,33 +55,37 @@ void setup() {
   int w = (int) (screen.width * 1);
   size(w, int(w/aspect));
   
-  setupFonts();  
+  fonts = new Fonts();  
+  fonts.setFont();  
   
-  
-  letterFont = randomFont();  
-  textFont(letterFont.font, textHeight);
   
   randomWords();
   setupEntrances();
   entrance();
   
   setupMasks();
-  setupHighLights();
+  highlights = new Highlights();
   
   img = loadImage("Facade3.jpg");
   
   setupState();
-  loadState("last.yaml", this);
+  setupBanner();
+  
+  twitterSetup();
+  readTwitter();
+  
+  loadState("last.yaml", this);  
 }
 
 void draw() {
   //randomBackground();
   
-  if (drawbackground) background(0);
-  if (drawimage) drawImage(img);
-  if (drawfilter) {
+  if (is("drawbackground")) background(0);
+  
+  if (is("drawimage")) drawImage(img);
+  if (is("drawfilter")) {
     noStroke();
-    if (drawimage) {
+    if (is("drawimage")) {
       fill(backColor,100);
     } else {
       fill(backColor,backAlpha);      
@@ -89,7 +93,7 @@ void draw() {
     rect(0,0,width,height);
   }
   
-  textFont(letterFont.font, textHeight);
+  fonts.setFont();
   for (Letter l : letters) {
     l.step();
     l.drawDrop();
@@ -99,18 +103,18 @@ void draw() {
     l.draw();
   }
 
-  if (drawmasks) drawMasks();
+  if (is("drawmasks")) drawMasks();
   repelMasks();
 
 
-  if (drawdebug) {
+  if (is("drawdebug")) {
   textSize(24);
   fill(255);
   text("X: " + float(mouseX)/width + ", Y: " + float(mouseY)/height, 0,height); 
   text("BACKGROUND RGB: " + red(backColor) + ", " + green(backColor) + ", " + blue(backColor), 0, height - 40); 
   text("BACKGROUND HSB: " + hue(backColor) + ", " + saturation(backColor) + ", " + brightness(backColor), 0, height - 20); 
   
-  text("FONT: " + letterFont.getName(), width/2, height-40);
+  text("FONT: " + fonts.letterFont.getName(), width/2, height-40);
   String s = MASKMODES[maskmode];
   float w = textWidth(s);
   text(s,width-w, height);
@@ -120,13 +124,16 @@ void draw() {
   drawBanner();
  
   if (isHighlightMode() && mousePressed) {
-    getCurrentHighLight().add(new PVector(mouseX, mouseY));
+    highlights.getCurrentHighLight().add(new PVector(mouseX, mouseY));
   } 
   
-  drawHighlights(); 
+  highlights.drawHighlights(); 
   
   if (ticks % 500 == 0) {
-    randomBackground();  
+    if (is("changingbackground")) {
+      randomBackground();
+    }
+    //readTwitter();  
   }
   
   //text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
