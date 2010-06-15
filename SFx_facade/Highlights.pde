@@ -34,6 +34,13 @@ public void drawHighlights() {
     switch (key) {
       case 'd':
         getCurrentHighLight().pop();
+        if (getCurrentHighLight().points.size() == 0) {
+          highlights.remove(getCurrentHighLight());
+          if (highlights.size()>0) {
+            currentHighLight = highlights.get(highlights.size()-1);
+          }
+            
+        }
         return true;
       case '+':
       case '=':

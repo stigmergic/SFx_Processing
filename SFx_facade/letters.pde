@@ -7,6 +7,8 @@ String[] words = {
 
 */
 
+float resolveX1,resolveY1,resolveX2,resolveY2;
+
 String[] words = {
       "The Santa Fe Complex",
       "Santa Fe Complex", 
@@ -18,10 +20,16 @@ String[] words = {
 String phrase;
 ArrayList<Letter> letters;
 
-float letterStrength = 10.0;
+float letterStrength = 100.0;
 
 void randomWords() {
-   phrase = words[0];
+  phrase = words[0];
+  
+  resolveX1 = getX(0.32);
+  resolveY1 = getY(0.26);
+  resolveX2 = getX(0.71);
+  resolveY2 = getY(0.26);
+  
   
   Letter l, ol = null;
   int i =0;
@@ -29,10 +37,12 @@ void randomWords() {
   for (char c : phrase.toCharArray()) {
     l = new Letter(c);
     l.offset = i * 10;
+    l.resolveX = (resolveX2-resolveX1)/phrase.length() * i + resolveX1;
+    l.resolveY = (resolveY2-resolveY1)/phrase.length() * i + resolveY1;
+    
     if (ol != null) {
       l.preceeding = ol;
-      ol.next = l;  
-      
+      ol.next = l;      
     }
     ol = l;
     letters.add(l);
@@ -47,6 +57,14 @@ void randomWords() {
  
 }
 
+  void randomFontMovement() {
+    resolution = (random(1)<0.5) ? WAVE_RESOLUTION : 0;  
+    resolution += (random(1)<0.25) ? SHAKY_RESOLUTION : 0;  
+    resolution += (random(1)<0.5) ? ROTAIONAL_RESOLUTION : 0;  
+    resolution += (random(1)<0.25) ? BLINKING_RESOLUTION : 0;  
+  }
+
+
 public class Letter {
 
   String letter;
@@ -54,6 +72,8 @@ public class Letter {
   int offset = 0;
   float ox,oy;
   float dx,dy;
+  
+  float resolveX, resolveY;
   
   float ndx, ndy, nn;
   
@@ -157,7 +177,7 @@ public class Letter {
     }
     
     if ((resolution & WAVE_RESOLUTION) == WAVE_RESOLUTION) {
-      fontSize = fonts.textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 1.55;
+      fontSize = fonts.textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 1.125;
     } else {
       fontSize = fonts.textHeight;  
     }
@@ -195,38 +215,33 @@ public class Letter {
     l.nn += 1;
     
   } 
+  
 
 
   void move() {
     if (is("resolve")) {
-      float nx = 0;
-      float ny = 0; 
+      float nx = resolveX;
+      float ny = resolveY; 
       float na = 0;
+      int i = 1;
 
       if (preceeding != null) {
         nx += preceeding.x + preceeding.w;
         ny += preceeding.y;
         na += preceeding.a;
+        i += 1;
       } 
-      else {
-        ny += 150;
-        nx += 0; //470;
-        na += 0;
-      }
+      
       if (next != null) {
         nx += next.x - w;
         ny += next.y;
         na += next.a;
+        i += 1;
       } 
-      else {
-        ny += 150;
-        nx += width-w; //1020-w;
-        na += 0;
-      }
 
-      nx /= 2;
-      ny /= 2;
-      na /= 2;
+      nx /= i;
+      ny /= i;
+      na /= i;
       
       if ((resolution & ROTAIONAL_RESOLUTION) != ROTAIONAL_RESOLUTION) {
         a = na;

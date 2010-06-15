@@ -16,7 +16,7 @@ public void setupEntrances() {
   entrances.add(new EntranceSides());
 }
 
-public void entrance() {
+public void randomEntrance() {
   Entrance e = entrances.get(int(random(entrances.size())));
   //Entrance e = entrances.get(3);
   

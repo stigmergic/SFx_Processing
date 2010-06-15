@@ -34,7 +34,7 @@ void repelMasks() {
 
 
 void masksMousePressed() {
-  if (!is("domouse")) return;
+  
   mousePoints.push(new PVector(mouseX, mouseY));
   
   if (isMouseMode("Rectangle") && mousePoints.size() == 2) { 

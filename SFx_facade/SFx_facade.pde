@@ -49,6 +49,7 @@ void setup() {
   //float aspect = 2.6666666666666665;
   //float aspect = 1440.0/900.0;
   float aspect = 2048/768.0;
+  reset();
   
   
   //float aspect = 1280.0/800;
@@ -61,7 +62,7 @@ void setup() {
   
   randomWords();
   setupEntrances();
-  entrance();
+  randomEntrance();
   
   setupMasks();
   highlights = new Highlights();
@@ -129,11 +130,30 @@ void draw() {
   
   highlights.drawHighlights(); 
   
-  if (ticks % 500 == 0) {
+  if ((ticks % 100) == 0) {
+    println("Elapsed time: " + elapsed() + " isBouncing: " + isBouncing() + " isResolving: " + isResolving() + " isStill: " + isStill() );  
+  }
+  
+  if (isBouncing()) {
+   states.set("resolve", false); 
+  }
+  if (isResolving() || isStill()) {
+    states.set("resolve", true);  
+  }
+  if (isStill()) {
+    resolution = 0;
+    randomFontColor();
+  }
+  
+  if (isFinished()) {
+    reset();
     if (is("changingbackground")) {
       randomBackground();
     }
-    //readTwitter();  
+    
+    fonts.randomFont();
+    randomFontMovement();
+    randomEntrance();
   }
   
   //text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);

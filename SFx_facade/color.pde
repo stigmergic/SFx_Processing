@@ -4,6 +4,12 @@
    colorMode(HSB);
    return color(random(255),255,255);
  }
+ 
+ void randomFontColor() {
+   for (Letter l : letters) {
+      l.co = randomColor(backColor);  
+   }
+ }
 
   color randomColor(color avoid) {
     colorMode(HSB);

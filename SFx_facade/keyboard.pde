@@ -80,9 +80,7 @@ void keyPressed() {
       break;
 
      case 'c':
-      for (Letter l : letters) {
-        l.co = randomColor(backColor);  
-      }
+      randomFontColor();
       break;
 
     case 'x':
@@ -169,7 +167,7 @@ void keyPressed() {
       flip("resolve");
       break;
     case 'e':
-      entrance();
+      randomEntrance();
       break;
     case 'i':
       flip("drawimage");
