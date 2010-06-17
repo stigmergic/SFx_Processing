@@ -154,11 +154,12 @@ void draw() {
     states.set("resolve", true);  
   }
   if (isStill()) {
-    resolution = WAVE_RESOLUTION;
+    resolution = 0;
     randomFontColor();
   }
   
   if (isStill() || isFlockTime()) {
+    randomFontColor();
     states.set("drawflock", true);  
   } else {
     states.set("drawflock", false);  
