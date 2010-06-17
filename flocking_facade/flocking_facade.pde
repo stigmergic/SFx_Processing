@@ -1,8 +1,8 @@
 //import processing.opengl.*;
-import fullscreen.*;
+//import fullscreen.*;
 
 public class flocking_facade extends PApplet {
-FullScreen fs1;
+//FullScreen fs1;
 
 /**
  * Flocking -- 2009
@@ -78,12 +78,12 @@ color getHighlightColor() {
 void setup() {
   //OPENGL doesn't work with fullscreen library
   if (screen.width>200) 
-    size(screen.width, screen.height);
+    size(2560, 800);
   else
     size(1024,768);
 
-  fs1 = new FullScreen(this);
-  fs1.enter();
+  //fs1 = new FullScreen(this);
+  //fs1.enter();
 
   boids = new Boids();
   updateNeighborhood();
@@ -113,7 +113,7 @@ void draw() {
 
   if (drawbackground) {
     background(backgroundColor);
-    drawImage(img);
+    //drawImage(img);
     //draw non-discomfort zone
     fill(0);
     stroke(0);

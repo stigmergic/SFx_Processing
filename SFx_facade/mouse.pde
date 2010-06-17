@@ -5,5 +5,7 @@ void mousePressed() {
   } else if (FOCUSMODES[focus].equals("Highlight Mode")) {
     highlights.highLightMousePressed();  
   }
+  
+  if (is("drawflock")) flock.mousePressed();
     
 }

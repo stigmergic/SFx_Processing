@@ -177,7 +177,7 @@ public class Letter {
     }
     
     if ((resolution & WAVE_RESOLUTION) == WAVE_RESOLUTION) {
-      fontSize = fonts.textHeight  * (sin((-ticks+offset)/30.0) + 1.5) * 1.125;
+      fontSize = fonts.textHeight  * (sin((-ticks+offset)/30.0) + 1.25) * 1.125;
     } else {
       fontSize = fonts.textHeight;  
     }

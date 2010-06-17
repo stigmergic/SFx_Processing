@@ -1,8 +1,9 @@
 
 long lastBeginning = millis();
 long bounceTime = 13000;
-long resolveTime = 5300;
-long stillTime = 7200;
+long resolveTime = 13300;
+long stillTime = 5200;
+long flockTime = 60000;
 
 
 long elapsed() {
@@ -25,6 +26,10 @@ boolean isStill() {
   return elapsed() > bounceTime + resolveTime && elapsed() < bounceTime + resolveTime + stillTime;   
 }
 
+boolean isFlockTime() {
+  return elapsed() > bounceTime + resolveTime  + stillTime && elapsed() < bounceTime + resolveTime + stillTime + flockTime;       
+}
+
 boolean isFinished() {
-  return elapsed() > bounceTime + resolveTime + stillTime;     
+  return elapsed() > bounceTime + resolveTime + stillTime + flockTime;     
 }

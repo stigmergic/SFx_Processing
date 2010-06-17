@@ -1,6 +1,6 @@
 
 void setupKeyboard() {
-
+  states.set("drawflock", true);
   states.set("drawimage", true);
   states.set("drawmasks", true);
   states.set("drawdebug", false);
@@ -50,11 +50,16 @@ public static final int LAST_RESOLUTION = 15;
 
 void keyPressed() {
   if (isHighlightMode() && highlights.highLightKeyPressed(key)) return;
+  if (is("drawflock") && flock.keyPressed(key,keyCode)) return;
   
   switch(key) {
     case 't':
       resolution += 1;
       if (resolution>LAST_RESOLUTION) resolution =0;
+      break;
+    
+    case 'B':
+      flip("drawflock");
       break;
     
     case 'b':

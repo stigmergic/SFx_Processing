@@ -1,3 +1,6 @@
+import processing.opengl.*;
+
+import net.stigmergic.flocking.FlockingState;
 
 
 /*
@@ -41,20 +44,27 @@
 
 public class SFx_facade extends PApplet {
 long ticks = 0;
-final String thisVersion = "SFx_facade v0.2";
+final String thisVersion = "SFx_facade v0.3";
 String name = thisVersion;
 //String lastName = 
+
+FlockingState flock;
 
 void setup() {
   //float aspect = 2.6666666666666665;
   //float aspect = 1440.0/900.0;
-  float aspect = 2048/768.0;
+  float aspect = 2560/800.0;
   reset();
   
   
   //float aspect = 1280.0/800;
-  int w = (int) (screen.width * 1);
+  int w = 2560/3;
   size(w, int(w/aspect));
+  
+  flock = new FlockingState(this);
+  flock.setKioskmode(true);
+  flock.setDrawbackground(false);
+  flock.setShowmessage(false);
   
   fonts = new Fonts();  
   fonts.setFont();  
@@ -72,8 +82,8 @@ void setup() {
   setupState();
   setupBanner();
   
-  twitterSetup();
-  readTwitter();
+  //twitterSetup();
+  //readTwitter();
   
   loadState("last.yaml", this);  
 }
@@ -81,10 +91,10 @@ void setup() {
 void draw() {
   //randomBackground();
   
-  if (is("drawbackground")) background(0);
+  if (is("drawbackground") && (!is("drawflock") || flock.isDrawbackground())) background(0);
   
   if (is("drawimage")) drawImage(img);
-  if (is("drawfilter")) {
+  if (is("drawfilter") && (flock.isDrawbackground() || !is("drawflock"))) {
     noStroke();
     if (is("drawimage")) {
       fill(backColor,100);
@@ -94,11 +104,15 @@ void draw() {
     rect(0,0,width,height);
   }
   
+  
   fonts.setFont();
   for (Letter l : letters) {
     l.step();
     l.drawDrop();
   }
+
+  if (is("drawflock")) flock.draw();
+
   
   for (Letter l : letters) {
     l.draw();
@@ -128,10 +142,9 @@ void draw() {
     highlights.getCurrentHighLight().add(new PVector(mouseX, mouseY));
   } 
   
-  highlights.drawHighlights(); 
   
   if ((ticks % 100) == 0) {
-    println("Elapsed time: " + elapsed() + " isBouncing: " + isBouncing() + " isResolving: " + isResolving() + " isStill: " + isStill() );  
+    println("Elapsed time: " + elapsed() + " isBouncing: " + isBouncing() + " isResolving: " + isResolving() + " isStill: " + isStill()  + " isFlock: " + isFlockTime());  
   }
   
   if (isBouncing()) {
@@ -141,8 +154,14 @@ void draw() {
     states.set("resolve", true);  
   }
   if (isStill()) {
-    resolution = 0;
+    resolution = WAVE_RESOLUTION;
     randomFontColor();
+  }
+  
+  if (isStill() || isFlockTime()) {
+    states.set("drawflock", true);  
+  } else {
+    states.set("drawflock", false);  
   }
   
   if (isFinished()) {
@@ -157,6 +176,9 @@ void draw() {
   }
   
   //text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
+
+  highlights.drawHighlights(); 
+
 }
 
   float getX(float x) {

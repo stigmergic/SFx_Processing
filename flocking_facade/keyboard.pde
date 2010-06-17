@@ -125,6 +125,11 @@ void process(char key, int keyCode) {
   case 'K':
     boids.removeAll();
     break;
+    
+    
+  case 'j':
+    kioskmode = !kioskmode;
+    break;
  
   case 'g':
     if (backgroundColor == color(0)) {
