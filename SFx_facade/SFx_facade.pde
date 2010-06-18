@@ -43,12 +43,18 @@ import net.stigmergic.flocking.FlockingState;
 */
 
 public class SFx_facade extends PApplet {
+  
+  float scaleFactor = 1.0;
+  
+
+  
 long ticks = 0;
 final String thisVersion = "SFx_facade v0.3";
 String name = thisVersion;
 //String lastName = 
 
 FlockingState flock;
+PImage highlightImage;
 
 void setup() {
   //float aspect = 2.6666666666666665;
@@ -58,8 +64,9 @@ void setup() {
   
   
   //float aspect = 1280.0/800;
-  int w = 2560;
+  int w = (int) (2560 * scaleFactor);
   size(w, int(w/aspect));
+  highlightImage = new PImage(width, height, ARGB);
   
   flock = new FlockingState(this);
   flock.setKioskmode(true);
@@ -104,25 +111,7 @@ void draw() {
     rect(0,0,width,height);
   }
   
- if (!isFlockTime()) {
 
-  fonts.setFont();
-  for (Letter l : letters) {
-    l.step();
-    l.drawDrop();
-  }
-    }
-    
-  if (is("drawflock")) flock.draw();
-
-  if (!isFlockTime()) {
-  for (Letter l : letters) {
-    l.draw();
-  }
-  }
-
-  if (is("drawmasks")) drawMasks();
-  repelMasks();
 
 
   if (is("drawdebug")) {
@@ -139,19 +128,51 @@ void draw() {
   }
   
   ticks += 1;
+
+  if (is("drawflock")) flock.draw();
+
+  if (is("drawmasks")) drawMasks();
+  
+  if (!(isResolving() || isStill())) {
+    repelMasks();
+  }
+
+    
+  if (isHighlightMode() && mousePressed) {
+    //highlights.getCurrentHighLight().add(new PVector(mouseX, mouseY));
+  } 
+  
+  
+  if (is("drawhighlights")) {
+    highlightcolor = randomColor(backColor);
+    highlights.drawHighlights();     
+  }
   
     if (!isFlockTime()) {
 
       drawBanner();
     }
-    
-  if (isHighlightMode() && mousePressed) {
-    highlights.getCurrentHighLight().add(new PVector(mouseX, mouseY));
-  } 
   
+
+ if (!isFlockTime()) {
+
+  fonts.setFont();
+  for (Letter l : letters) {
+    l.step();
+    l.drawDrop();
+  }
+    }
+    
+
+  if (!isFlockTime()) {
+  for (Letter l : letters) {
+    l.draw();
+  }
+  }
+
   
   if ((ticks % 100) == 0) {
-    println("Elapsed time: " + elapsed() + " isBouncing: " + isBouncing() + " isResolving: " + isResolving() + " isStill: " + isStill()  + " isFlock: " + isFlockTime());  
+    println("FrameRate: " + frameRate + "Elapsed time: " + elapsed() + " isBouncing: " + isBouncing() + " isResolving: " + isResolving() + " isStill: " + isStill()  + " isFlock: " + isFlockTime());  
   }
   
   if (isBouncing()) {
@@ -185,7 +206,6 @@ void draw() {
   
   //text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
 
-  highlights.drawHighlights(); 
 
   if (states.is("mousecross")) {
     stroke(255);

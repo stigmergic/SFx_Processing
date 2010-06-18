@@ -10,7 +10,7 @@ void setupKeyboard() {
   states.set("mousecross", false);
 }
 
-float maxSpeed = 5.0;
+float maxSpeed = 15.0 * scaleFactor;
 float friction = 1.0;
 float backAlpha = 255;
 color  backColor = color(0);
@@ -121,14 +121,16 @@ void keyPressed() {
         fonts.letterFont = fonts.nextFont();
         fonts.setFont();
         break;
+    
     case 'h':
       focus = focus + 1;
       if (focus>LAST_FOCUS) focus = FIRST_FOCUS;
       break;
+      
     case 'H':
-      focus = focus - 1;
-      if (focus<FIRST_FOCUS) focus = LAST_FOCUS;
+      flip("drawhighlights");
       break;
+    
     case 'n':
       flip("drawfilter");
       break;
@@ -181,7 +183,11 @@ void keyPressed() {
     case 'i':
       flip("drawimage");
       break;
-      
+    
+    case '*':
+      deleteHighlights();
+      break;  
+    
     case '1':
       saveState("last.yaml");
       break;

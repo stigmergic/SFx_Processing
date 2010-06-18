@@ -4,7 +4,7 @@ String bannerString = "     \"Mapping The Complex\"    June 17-19 2010    \"Mapp
 float bannerWidth = 100;
 float movingBannerX = width/2, movingBannerY = height/2;
 
-color bannerColor = color(255);
+color bannerColor = color(255,0,0);
 
 void setupBanner() {
   bannerWidth = getX(0.385);

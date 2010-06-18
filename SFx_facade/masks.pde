@@ -17,7 +17,7 @@ void drawMasks() {
     m.draw();
   }
 
-  if (is("domouse") && mousePoints.hasPoints()) {
+  if (mousePoints.hasPoints()) {
     noFill();
     stroke(255);
     mousePoints.draw(mouseX, mouseY);
