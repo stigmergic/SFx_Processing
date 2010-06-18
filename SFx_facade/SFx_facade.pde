@@ -58,7 +58,7 @@ void setup() {
   
   
   //float aspect = 1280.0/800;
-  int w = 2560/3;
+  int w = 2560;
   size(w, int(w/aspect));
   
   flock = new FlockingState(this);
@@ -104,18 +104,21 @@ void draw() {
     rect(0,0,width,height);
   }
   
-  
+ if (!isFlockTime()) {
+
   fonts.setFont();
   for (Letter l : letters) {
     l.step();
     l.drawDrop();
   }
-
+    }
+    
   if (is("drawflock")) flock.draw();
 
-  
+  if (!isFlockTime()) {
   for (Letter l : letters) {
     l.draw();
+  }
   }
 
   if (is("drawmasks")) drawMasks();
@@ -136,8 +139,12 @@ void draw() {
   }
   
   ticks += 1;
-  drawBanner();
- 
+  
+    if (!isFlockTime()) {
+
+      drawBanner();
+    }
+    
   if (isHighlightMode() && mousePressed) {
     highlights.getCurrentHighLight().add(new PVector(mouseX, mouseY));
   } 
@@ -158,7 +165,7 @@ void draw() {
     randomFontColor();
   }
   
-  if (isStill() || isFlockTime()) {
+  if (isFlockTime()) {
     randomFontColor();
     states.set("drawflock", true);  
   } else {
@@ -179,6 +186,12 @@ void draw() {
   //text(name, width/2 - textWidth(name)/2, height/2 - textHeight/2);
 
   highlights.drawHighlights(); 
+
+  if (states.is("mousecross")) {
+    stroke(255);
+    line(0,mouseY,width,mouseY);
+    line(mouseX,0,mouseX,height);  
+  }
 
 }
 

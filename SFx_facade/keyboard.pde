@@ -7,6 +7,7 @@ void setupKeyboard() {
   states.set("drawfilter", true);
   states.set("drawbackground", true);
   states.set("domouse", true);
+  states.set("mousecross", false);
 }
 
 float maxSpeed = 5.0;
@@ -87,6 +88,9 @@ void keyPressed() {
      case 'c':
       randomFontColor();
       break;
+    
+    case '$':
+      flip("mousecross");
 
     case 'x':
       if (dropColor == color(0)) {
