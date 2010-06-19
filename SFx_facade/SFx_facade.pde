@@ -144,7 +144,7 @@ void draw() {
   
   
   if (is("drawhighlights")) {
-    highlightcolor = randomColor(backColor);
+    if (is("blinkinghighlights")) highlightcolor = randomColor(backColor);
     highlights.drawHighlights();     
   }
   

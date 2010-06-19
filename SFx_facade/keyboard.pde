@@ -8,6 +8,7 @@ void setupKeyboard() {
   states.set("drawbackground", true);
   states.set("domouse", true);
   states.set("mousecross", false);
+  states.set("blinkinghighlight", true);
 }
 
 float maxSpeed = 15.0 * scaleFactor;
@@ -129,6 +130,10 @@ void keyPressed() {
       
     case 'H':
       flip("drawhighlights");
+      break;
+    
+    case '^':
+      flip("blinkinghighlights");
       break;
     
     case 'n':

@@ -32,9 +32,14 @@ void setup()
 {
   // Size of applet
   //size(1600,1000);
-  size(1500,1000);
+  //size(2560,800);
   //size(800,600);
-  cam = new Capture(this, 324, 240, 15);
+  size(screenWidth, screenHeight);
+  
+  println(Capture.list());
+  //cam = new Capture(this, 324, 240, 15);
+  cam = new Capture(this, 324, 240,"Sony HD Eye for PS3 (SLEH 00201)", 25);
+  
   int res = 2;
   // BlobDetection
   img = new PImage(160*res,120*res); // img which will be sent to detection (a smaller copy of the cam frame);
@@ -103,7 +108,7 @@ void draw()
     }    
 
     if (drawBlobs) {
-      drawBlobs(whiteBlobs,getWhite());  
+      drawBlobs(whiteBlobs, getWhite());  
       drawBlobs(redBlobs, getRed());    
       drawBlobs(greenBlobs,  getGreen());   
       drawBlobs(blueBlobs, getBlue());      
@@ -129,9 +134,9 @@ void draw()
     }
 
     if (drawimg2) {
-      int xmargin = 2;
-      int ymargin = 5;
-      float m = min(width/2/img.width, height/2/img.height);
+      int xmargin = int( ((float)width/img.width)/3.0/2 ) ;
+      int ymargin = (int) (height/img.height/3.0/2) ;
+      float m = min(width/2.0/img.width, height/2.0/img.height);
       stroke(100);
       noFill();
       if ((tintHighlite & COLOR)>0){
