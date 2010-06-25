@@ -1,6 +1,6 @@
 ArrayList trails = new ArrayList();
 int bubbleAlpha = 120;
-
+int maxbubbles = 1000;
 
 class Location {
   float x,y,z;
@@ -136,6 +136,10 @@ void grim_reaper() {
   for (int i =0; i<trails.size(); i++) {
     tloc = (Location) trails.get(i);
     if (tloc.life<=0) trails.remove(i);
+  }
+
+  while (trails.size()>maxbubbles) {
+    trails.remove(0);
   }  
 
 }

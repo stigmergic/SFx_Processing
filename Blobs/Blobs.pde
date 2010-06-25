@@ -1,3 +1,5 @@
+
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //BlobDetection by v3ga <http://processing.v3ga.net>
 //May 2005
@@ -25,7 +27,11 @@ Capture cam;
 BlobDetection theBlobDetection;
 PImage img;
 PImage diffImage;
+PImage curFrame;
 boolean newFrame=false;
+
+boolean showdiffimage = true;
+boolean showimage = false;
 
 int numPixels;
 int[] previousFrame;
@@ -37,13 +43,19 @@ int[] previousFrame;
 void setup()
 {
 	// Size of applet
-	size(screenWidth, screenHeight);
+	//size(screenWidth, screenHeight);
+	size(640, 400);
         background(0);
 	// Capture
-	cam = new Capture(this, 640, 480, 15);
+        //println(Capture.list());
+	cam = new Capture(this, 640, 400,"Sony HD Eye for PS3 (SLEH 00201)", 15);
+        curFrame = new PImage(cam.width, cam.height);
+	//cam = new Capture(this, 640, 480,"Sony", 15);
 	// BlobDetection
 	// img which will be sent to detection (a smaller copy of the cam frame);
-	img = new PImage(80,60); 
+	//img = new PImage(80,60); 
+	img = new PImage(640,400); 
+        
         diffImage = new PImage(cam.width, cam.height);
         
 	theBlobDetection = new BlobDetection(img.width, img.height);
@@ -55,6 +67,7 @@ void setup()
   previousFrame = new int[numPixels];
   loadPixels();
 
+  timeLapse();
   
 }
 
@@ -89,12 +102,14 @@ void draw()
 
                 fastblur(img, 2);
 		theBlobDetection.computeBlobs(img.pixels);
-                //image(diffImage, 0,0,width,height);
+                if (showdiffimage) image(diffImage, 0,0,width,height);
 
-                //image(img,0,0);
+                if (showimage) image(img,0,0);
 		drawBlobsAndEdges(true,true);
         
 	}
+
+timeLapse();
 }
 
 // ==================================================
@@ -113,8 +128,8 @@ void drawBlobsAndEdges(boolean drawBlobs, boolean drawEdges)
 			// Edges
 			if (drawEdges)
 			{
-				strokeWeight(3);
-				stroke(0,255,0);
+				strokeWeight(1);
+				stroke(255,255,0);
 				for (int m=0;m<b.getEdgeNb();m++)
 				{
 					eA = b.getEdgeVertexA(m);
@@ -132,10 +147,23 @@ void drawBlobsAndEdges(boolean drawBlobs, boolean drawEdges)
 			{
 				strokeWeight(1);
 				stroke(255,0,0);
+                                fill(255,60);
 				rect(
 					b.xMin*width,b.yMin*height,
 					b.w*width,b.h*height
 					);
+
+                                int x1 = (int) b.xMin*width;
+                                int y1 = (int) b.yMin*height;
+                                int w1 = (int) b.w*width;
+                                int h1 = (int) b.h*height;
+                                
+                                int x2 = (int) b.xMin*cam.width;
+                                int y2 = (int) b.yMin*cam.height;
+                                int w2 = (int) b.w*cam.width;
+                                int h2 = (int) b.h*cam.height;
+
+				copy(curFrame,x2,y2,w2,h2,x1,y1,w1,h1);
 			}
 
 		}

@@ -1,9 +1,11 @@
 
 void movement() {    
     int movementSum = 0; // Amount of movement in the frame
+    curFrame.loadPixels();
     for (int i = 0; i < numPixels; i++) { // For each pixel in the video frame...
       color currColor = cam.pixels[i];
       color prevColor = previousFrame[i];
+      curFrame.pixels[i] = cam.pixels[i];
       // Extract the red, green, and blue components from current pixel
       int currR = (currColor >> 16) & 0xFF; // Like red(), but faster
       int currG = (currColor >> 8) & 0xFF;
@@ -29,7 +31,7 @@ void movement() {
     // only update the screen if the image has changed.
     if (movementSum > 0) {
       diffImage.updatePixels();
-      //updatePixels();
+      curFrame.updatePixels();
       println(movementSum + " frameRate: " + frameRate); // Print the total amount of movement to the console
     }
   }
