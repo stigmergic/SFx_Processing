@@ -95,7 +95,7 @@ void fastblue(PImage img){
   for (y=0;y<h;y++){
     yp = y * img.width;
     for (x=0;x<w;x++){
-      cval = -red(pix[yp+x]) + blue(pix[yp+x]) - green(pix[yp+x]);
+      cval = -red(pix[yp+x]) + blue(pix[yp+x])*2 - green(pix[yp+x]);
       cval = cval < 0 ? 0 : cval > 255 ? 255 : cval;
       
 
