@@ -59,12 +59,12 @@ PImage highlightImage;
 void setup() {
   //float aspect = 2.6666666666666665;
   //float aspect = 1440.0/900.0;
-  float aspect = 2560/800.0;
+  //float aspect = 1024/768.0;
   reset();
   
   
-  //float aspect = 1280.0/800;
-  int w = (int) (2560 * scaleFactor);
+  float aspect = 1280.0/1024;
+  int w = (int) (1280 * scaleFactor);
   size(w, int(w/aspect));
   highlightImage = new PImage(width, height, ARGB);
   

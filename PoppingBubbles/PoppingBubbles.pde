@@ -37,8 +37,10 @@ void setup()
   size(screenWidth, screenHeight);
   
   println(Capture.list());
-  cam = new Capture(this, 324, 240, 15);
-  //cam = new Capture(this, 324, 240,"Sony HD Eye for PS3 (SLEH 00201)", 25);
+  //cam = new Capture(this, 324, 240, 15);
+  //cam = new Capture(this, 320, 200,"Logitech QuickCam Pro 4000", 10);
+
+  cam = new Capture(this, 324, 240,"Sony HD Eye for PS3 (SLEH 00201)", 25);
   
   int res = 2;
   // BlobDetection

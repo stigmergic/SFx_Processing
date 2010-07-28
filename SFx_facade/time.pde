@@ -1,8 +1,8 @@
 
 long lastBeginning = millis();
-long bounceTime = 17000;
-long resolveTime = 13300;
-long stillTime = 15200;
+long bounceTime = 1700;
+long resolveTime = 1330;
+long stillTime = 1520;
 long flockTime = 60000;
 
 

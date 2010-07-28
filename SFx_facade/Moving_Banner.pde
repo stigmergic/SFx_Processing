@@ -1,6 +1,7 @@
 
 PFont ocr = createFont("OCRAStd", 12);
-String bannerString = "     \"Mapping The Complex\"    June 17-19 2010    \"Mapping The Complex\"";
+//String bannerString = "     \"Mapping The Complex\"    June 17-19 2010    \"Mapping The Complex\"";
+String bannerString = "                                                                   Bon   Voyage   Paige    and     Randy!!!!!!!!!!!                     ";
 float bannerWidth = 100;
 float movingBannerX = width/2, movingBannerY = height/2;
 

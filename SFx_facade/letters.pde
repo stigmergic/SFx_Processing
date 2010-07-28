@@ -1,14 +1,15 @@
 
-/*
+
 String[] words = {
-      "Its not true that I had nothing on, I had the radio on.",
-      "sfX"
+    "Bon Voyage Randy and Paige",
+    "Have fun in Thailand",
+    
     };
 
-*/
 
 float resolveX1,resolveY1,resolveX2,resolveY2;
 
+/*
 String[] words = {
       "The Santa Fe Complex",
       "Santa Fe Complex", 
@@ -16,6 +17,7 @@ String[] words = {
       "the Complex",
       "sfX"
     };
+*/
 
 String phrase;
 ArrayList<Letter> letters;

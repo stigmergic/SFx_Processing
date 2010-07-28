@@ -7,7 +7,7 @@ HashMap<String, LetterFont> fontMap;
 
 LetterFont letterFont;
 int currentFont = 0;
-int textHeight = (int) (72 * scaleFactor);
+int textHeight = (int) (32 * scaleFactor);
 
   int LETTERBOX = 0;
   int NOLETTERBOX = 1;

@@ -5,9 +5,9 @@ long timelapsetime = 10 * 1000;
 void timeLapse() {
   if (timelapse) {
     if (!(new File(runname)).exists()) {
-       (new File(runname)).mkdirs();
+      (new File(runname)).mkdirs();
     }
-    
+
     saveFrame(runname + "/" + runname+"-#######.jpg"); 
     try {
       Thread.sleep(timelapsetime);
@@ -17,3 +17,4 @@ void timeLapse() {
     }
   }
 }
+
